@@ -24,7 +24,7 @@ class RGBWindow(arcade.Window):
         img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
         img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
         img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
-        img[:, :, 3] = 0.astype(np.uint8)
+        img[:, :, 3] = 255
 
         img[x:x+20, y:y+20, :] = 0
 
