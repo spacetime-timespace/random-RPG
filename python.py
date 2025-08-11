@@ -16,7 +16,7 @@ class RGBWindow(arcade.Window):
         self.start_time = time.time()
         img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
         im = Image.fromarray(img)
-        texture = arcade.Texture(name="thing", image=im)
+        texture = arcade.Texture(image=im)
 
     def on_draw(self):
         arcade.start_render()
