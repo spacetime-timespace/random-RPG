@@ -33,16 +33,17 @@ class RGBWindow(arcade.Window):
         texture.draw_scaled(WIDTH//2, HEIGHT//2, 1, 1)
 
     def on_key_press(self,symbol,modifiers):
-        if symbol = arcade.key.LEFT:
+        global x,y
+        if symbol == arcade.key.LEFT:
             if x > 0:
                 x -= 1
-        if symbol = arcade.key.RIGHT:
+        if symbol == arcade.key.RIGHT:
             if x < 180:
                 x += 1  
-        if symbol = arcade.key.UP:
+        if symbol == arcade.key.UP:
             if y < 180:
                 x += 1
-        if symbol = arcade.key.DOWN:
+        if symbol == arcade.key.DOWN:
             if y > 0:
                 x -= 1
 
