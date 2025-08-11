@@ -12,9 +12,9 @@ while True:
     img = np.zeros((height, width, 3), dtype=np.uint8)
     for i in range(len(img)):
         for j in range(len(img)):
-            img[i][j] = np.sin(i/height) + np.sin(j/width) + np.sin((time.time()/5) % (2*np.pi) )
+            img[i][j] = np.array([np.sin(i/height), np.sin(j/width), np.sin((time.time()/5) % (2*np.pi) )]) * 10
     cv2.imshow("gyatt", img):
-    if keyboard.is_pressed('x')
+    if keyboard.is_pressed('x'):
         break
 
     time.sleep(delay)
