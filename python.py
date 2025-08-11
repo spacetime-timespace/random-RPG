@@ -1,22 +1,35 @@
-import cv2
-import keyboard
+import arcade
 import numpy as np
 import time
 
-width, height = 200, 200
-fps = 120
-delay = 1 / fps
+WIDTH = 200
+HEIGHT = 200
+FPS = 120
 
-while True:
-    t = time.time()
-    img = np.zeros((height, width, 3), dtype=np.uint8)
-    for i in range(len(img)):
-        for j in range(len(img)):
-            img[i][j] = np.array([np.sin(i/height), np.sin(j/width), np.sin((time.time()/5) % (2*np.pi) )], dtype=np.uint8) * 10
-    cv2.imshow("gyatt", img)
-    if keyboard.is_pressed('x'):
-        break
+class RGBWindow(arcade.Window):
+    def __init__(self):
+        super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
+        self.start_time = time.time()
 
-    time.sleep(delay)
+    def on_draw(self):
+        arcade.start_render()
 
-cv2.destroyAllWindows()
+        # Time for animation
+        t = time.time() - self.start_time
+
+        # Create a NumPy RGB array
+        img = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
+        img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)  # Red
+        img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)  # Green
+        img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)  # Blue
+
+        # Convert to Arcade texture and draw
+        texture = arcade.Texture(name="rgb_frame", image=arcade.ImageData(WIDTH, HEIGHT, img))
+        texture.draw_scaled(WIDTH//2, HEIGHT//2, 1, 1)
+
+    def on_key_press(self,symbol,modifiers):
+        
+
+if __name__ == "__main__":
+    RGBWindow()
+    arcade.run()
