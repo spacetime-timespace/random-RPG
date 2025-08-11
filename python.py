@@ -1,6 +1,7 @@
 import arcade
 import numpy as np
 import time
+from PIL import Image
 
 WIDTH = 200
 HEIGHT = 200
@@ -17,10 +18,8 @@ class RGBWindow(arcade.Window):
     def on_draw(self):
         arcade.start_render()
 
-        # Time for animation
         t = time.time() - self.start_time
 
-        # Create a NumPy RGB array
         img = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
         img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)  # Red
         img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)  # Green
@@ -28,11 +27,12 @@ class RGBWindow(arcade.Window):
 
         img[x:x+20, y:y+20, :] = 0
 
-        # Convert to Arcade texture and draw
-        texture = arcade.Texture(name="rgb_frame", image=arcade.ImageData(WIDTH, HEIGHT, img))
+        im = Image.fromarray(img)
+
+        texture = arcade.Texture(name="thing", image=im)
         texture.draw_scaled(WIDTH//2, HEIGHT//2, 1, 1)
 
-    def on_key_press(self,symbol,modifiers):
+    '''def on_key_press(self,symbol,modifiers):
         global x,y
         if symbol == arcade.key.LEFT:
             if x > 0:
@@ -45,7 +45,7 @@ class RGBWindow(arcade.Window):
                 x += 1
         if symbol == arcade.key.DOWN:
             if y > 0:
-                x -= 1
+                x -= 1'''
 
 if __name__ == "__main__":
     RGBWindow()
