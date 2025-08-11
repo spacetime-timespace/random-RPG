@@ -14,6 +14,9 @@ class RGBWindow(arcade.Window):
     def __init__(self):
         super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
         self.start_time = time.time()
+        img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
+        im = Image.fromarray(img)
+        texture = arcade.Texture(name="thing", image=im)
 
     def on_draw(self):
         arcade.start_render()
@@ -30,10 +33,9 @@ class RGBWindow(arcade.Window):
 
         im = Image.fromarray(img)
 
-        texture = arcade.Texture(name="thing", image=im)
-        texture.draw_scaled(WIDTH//2, HEIGHT//2, 1, 1)
+        texture.image = im
 
-    '''def on_key_press(self,symbol,modifiers):
+    def on_key_press(self,symbol,modifiers):
         global x,y
         if symbol == arcade.key.LEFT:
             if x > 0:
@@ -46,7 +48,7 @@ class RGBWindow(arcade.Window):
                 x += 1
         if symbol == arcade.key.DOWN:
             if y > 0:
-                x -= 1'''
+                x -= 1
 
 if __name__ == "__main__":
     RGBWindow()
