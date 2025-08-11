@@ -12,13 +12,16 @@ y = 0
 
 class RGBWindow(arcade.Window):
     def __init__(self):
+        global tex,sp
         super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
         self.start_time = time.time()
         img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
         im = Image.fromarray(img)
-        texture = arcade.Texture(image=im)
+        tex = arcade.Texture(image=im)
+        sp = arcade.Sprite()
 
     def on_draw(self):
+        global text,sp
         arcade.start_render()
 
         t = time.time() - self.start_time
@@ -33,7 +36,9 @@ class RGBWindow(arcade.Window):
 
         im = Image.fromarray(img)
 
-        texture.image = im
+        tex.image = im
+        sp.kill()
+        sp=arcade.Sprite(texture=tex)
 
     def on_key_press(self,symbol,modifiers):
         global x,y
