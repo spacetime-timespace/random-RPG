@@ -20,10 +20,11 @@ class RGBWindow(arcade.Window):
 
         t = time.time() - self.start_time
 
-        img = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
-        img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)  # Red
-        img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)  # Green
-        img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)  # Blue
+        img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
+        img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
+        img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
+        img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
+        img[:, :, 3] = 0.astype(np.uint8)
 
         img[x:x+20, y:y+20, :] = 0
 
