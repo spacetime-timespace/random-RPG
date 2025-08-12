@@ -18,7 +18,6 @@ class RGBWindow(arcade.Window):
         img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
         im = Image.fromarray(img)
         tex = arcade.Texture(image=im)
-        sp = arcade.Sprite()
 
     def on_draw(self):
         global text,sp
@@ -37,8 +36,7 @@ class RGBWindow(arcade.Window):
         im = Image.fromarray(img)
 
         tex.image = im
-        sp.kill()
-        sp=arcade.Sprite(texture=tex)
+        draw_texture(100,100,200,200,tex)
 
     def on_key_press(self,symbol,modifiers):
         global x,y
