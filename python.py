@@ -14,6 +14,8 @@ y = 0
 sp = arcade.Sprite()
 sp.center_x = 100
 sp.center_y = 100
+spl = arcade.spriteList()
+spl.append(sp)
 
 class RGBWindow(arcade.Window):
     def __init__(self):
@@ -42,7 +44,7 @@ class RGBWindow(arcade.Window):
 
         tex.image = im
         sp.texture = tex
-        sp.draw()
+        spl.draw()
 
     def on_key_press(self,symbol,modifiers):
         global x,y
