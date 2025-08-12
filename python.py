@@ -11,6 +11,10 @@ FPS = 120
 x = 0
 y = 0
 
+sp = arcade.Sprite()
+sp.center_x = 100
+sp.center_y = 100
+
 class RGBWindow(arcade.Window):
     def __init__(self):
         global tex,sp
@@ -37,7 +41,8 @@ class RGBWindow(arcade.Window):
         im = Image.fromarray(img)
 
         tex.image = im
-        arcade.gui.Surface.draw_texture(100,100,200,200,tex)
+        sp.texture = tex
+        sp.draw()
 
     def on_key_press(self,symbol,modifiers):
         global x,y
