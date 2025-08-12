@@ -36,7 +36,7 @@ class RGBWindow(arcade.Window):
         im = Image.fromarray(img)
 
         tex.image = im
-        draw_texture(100,100,200,200,tex)
+        arcade.gui.Surface.draw_texture(100,100,200,200,tex)
 
     def on_key_press(self,symbol,modifiers):
         global x,y
