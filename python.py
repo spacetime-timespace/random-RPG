@@ -15,11 +15,14 @@ class Game(arcade.Window):
         self.tex = arcade.Texture(image = Image.fromarray(np.zeros((HEIGHT,WIDTH,4),dtype = np.uint8)))
         self.x = 0
         self.y = 0
-        t = time.time() - self.start_time
+        t0 = time.time() - self.start_time
         self.img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
-        self.img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
-        self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
-        self.img[:, :, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
+        for i in range(WIDTH):
+            for j in range(HEIGHT):
+                t = t0 + (2*i+j)/HEIGHT
+                self.img[j, i, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
+                self.img[j, i, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
+                self.img[j, i, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
         x = int(self.x)
         y = int(self.y)
@@ -35,13 +38,18 @@ class Game(arcade.Window):
 
     def on_draw(self):
 
-        t = time.time() - self.start_time
+        t0 = time.time() - self.start_time
         self.img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
-        self.img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
-        self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
-        self.img[:, :, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
+        '''for i in range(WIDTH):
+            for j in range(HEIGHT):
+                t = t0 + (2*i+j)/HEIGHT
+                self.img[j, i, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
+                self.img[j, i, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
+                self.img[j, i, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)'''
+        self.img[:, :, 0] = (np.sin(t0) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 1] = (np.cos(t0) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 2] = (np.sin(t0 * 0.5) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
-        
         x = int(self.x)
         y = int(self.y)
         self.img[x:x+20, y:y+20, :3] = 0
