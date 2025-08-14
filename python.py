@@ -50,17 +50,17 @@ class Game(arcade.Window):
 
     def on_key_press(self,symbol,modifiers):
         if symbol == arcade.key.LEFT:
-            if self.x > 0:
-                self.x -= 1
-        if symbol == arcade.key.RIGHT:
-            if self.x < 180:
-                self.x += 1  
-        if symbol == arcade.key.UP:
-            if self.y < 180:
-                self.y += 1
-        if symbol == arcade.key.DOWN:
             if self.y > 0:
-                self.y -= 1
+                self.y -= 10
+        if symbol == arcade.key.RIGHT:
+            if self.y < 180:
+                self.y += 10  
+        if symbol == arcade.key.UP:
+            if self.x < 180:
+                self.x += 10
+        if symbol == arcade.key.DOWN:
+            if self.x > 0:
+                self.x -= 10
 def main():
     window = Game()
     arcade.run()
