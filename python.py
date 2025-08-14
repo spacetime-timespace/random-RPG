@@ -14,7 +14,7 @@ y = 0
 sp = arcade.Sprite()
 sp.center_x = 100
 sp.center_y = 100
-spl = arcade.spriteList()
+spl = arcade.SpriteList()
 spl.append(sp)
 
 class RGBWindow(arcade.Window):
@@ -25,10 +25,10 @@ class RGBWindow(arcade.Window):
         img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
         im = Image.fromarray(img)
         tex = arcade.Texture(image=im)
+        arcade.start_render()
 
     def on_draw(self):
         global text,sp
-        arcade.start_render()
 
         t = time.time() - self.start_time
 
