@@ -30,6 +30,7 @@ class Game(arcade.Window):
         self.sp.center_y = 100
         self.spl = arcade.SpriteList()
         self.spl.append(self.sp)
+        self.key = None
 
     def on_draw(self):
 
@@ -49,18 +50,23 @@ class Game(arcade.Window):
         self.spl.draw()
 
     def on_key_press(self,symbol,modifiers):
+        self.key = symbol
+    def on_key_release(self):
+        self.key = None
+    def on_update(self,delta_time):
+        symbol = self.key
         if symbol == arcade.key.LEFT:
             if self.y > 0:
-                self.y -= 10
+                self.y -= 10*delta_time
         if symbol == arcade.key.RIGHT:
             if self.y < 180:
-                self.y += 10  
+                self.y += 10*delta_time
         if symbol == arcade.key.DOWN:
             if self.x < 180:
-                self.x += 10
+                self.x += 10*delta_time
         if symbol == arcade.key.UP:
             if self.x > 0:
-                self.x -= 10
+                self.x -= 10*delta_time
 def main():
     window = Game()
     arcade.run()
