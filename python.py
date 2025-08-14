@@ -21,8 +21,9 @@ class Game(arcade.Window):
         self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
         self.img[:, :, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
-
-        self.img[self.x:self.x+20, self.y:self.y+20, :3] = 0
+        x = int(self.x)
+        y = int(self.y)
+        self.img[x:x+20, y:y+20, :3] = 0
 
         self.im = Image.fromarray(self.img)
         self.sp = arcade.Sprite(self.im,1)
@@ -30,7 +31,7 @@ class Game(arcade.Window):
         self.sp.center_y = 100
         self.spl = arcade.SpriteList()
         self.spl.append(self.sp)
-        self.key = None
+        self.key = []
 
     def on_draw(self):
 
@@ -40,8 +41,10 @@ class Game(arcade.Window):
         self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
         self.img[:, :, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
-
-        self.img[self.x:self.x+20, self.y:self.y+20, :3] = 0
+        
+        x = int(self.x)
+        y = int(self.y)
+        self.img[x:x+20, y:y+20, :3] = 0
 
         self.im = Image.fromarray(self.img)
         self.tex = arcade.Texture(self.im)
@@ -49,23 +52,23 @@ class Game(arcade.Window):
         self.clear()
         self.spl.draw()
 
-    def on_key_press(self,symbol,modifiers):
-        self.key = symbol
-    def on_key_release(self):
-        self.key = None
+    def on_key_press(self,key,modifiers):
+        self.key.append(key)
+    def on_key_release(self,key,modifiers):
+        self.key.remove(key)
     def on_update(self,delta_time):
-        symbol = self.key
-        if symbol == arcade.key.LEFT:
-            if self.y > 0:
+        key = self.key
+        if arcade.key.LEFT in key:
+            if self.y > 100*delta_time:
                 self.y -= 100*delta_time
-        if symbol == arcade.key.RIGHT:
-            if self.y < 180:
+        if arcade.key.RIGHT in key:
+            if self.y < 180-100*delta_time:
                 self.y += 100*delta_time
-        if symbol == arcade.key.DOWN:
-            if self.x < 180:
+        if arcade.key.DOWN in key:
+            if self.x < 180-100*delta_time:
                 self.x += 100*delta_time
-        if symbol == arcade.key.UP:
-            if self.x > 0:
+        if arcade.key.UP in key:
+            if self.x > 100*delta_time:
                 self.x -= 100*delta_time
 def main():
     window = Game()
