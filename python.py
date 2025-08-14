@@ -55,10 +55,10 @@ class Game(arcade.Window):
         if symbol == arcade.key.RIGHT:
             if self.y < 180:
                 self.y += 10  
-        if symbol == arcade.key.UP:
+        if symbol == arcade.key.DOWN:
             if self.x < 180:
                 self.x += 10
-        if symbol == arcade.key.DOWN:
+        if symbol == arcade.key.UP:
             if self.x > 0:
                 self.x -= 10
 def main():
