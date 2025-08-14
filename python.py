@@ -28,7 +28,7 @@ class Game(arcade.Window):
         self.img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
         self.img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
         self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
-        self.img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 2] = (np.sin(t * 0.5) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
 
         self.img[self.x:self.x+20, self.y:self.y+20, :3] = 0
