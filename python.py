@@ -57,16 +57,16 @@ class Game(arcade.Window):
         symbol = self.key
         if symbol == arcade.key.LEFT:
             if self.y > 0:
-                self.y -= 10*delta_time
+                self.y -= 100*delta_time
         if symbol == arcade.key.RIGHT:
             if self.y < 180:
-                self.y += 10*delta_time
+                self.y += 100*delta_time
         if symbol == arcade.key.DOWN:
             if self.x < 180:
-                self.x += 10*delta_time
+                self.x += 100*delta_time
         if symbol == arcade.key.UP:
             if self.x > 0:
-                self.x -= 10*delta_time
+                self.x -= 100*delta_time
 def main():
     window = Game()
     arcade.run()
