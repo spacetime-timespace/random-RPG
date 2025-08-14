@@ -18,7 +18,7 @@ class Game(arcade.Window):
         self.sp.center_y = 100
         arcade.start_render()
         self.spl = arcade.SpriteList()
-        self.spl.append(sp)
+        self.spl.append(self.sp)
         self.x = 0
         self.y = 0
 
@@ -31,12 +31,12 @@ class Game(arcade.Window):
         self.img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
         self.img[:, :, 3] = 255
 
-        self.img[self.x:self.x+20, self.y:self.y+20, :] = 0
+        self.img[self.x:self.x+20, self.y:self.y+20, :3] = 0
 
         self.im = Image.fromarray(self.img)
 
         self.tex.image = self.im
-        self.sp.texture = tex
+        self.sp.texture = self.tex
         self.spl.draw()
 
     def on_key_press(self,symbol,modifiers):
@@ -52,10 +52,6 @@ class Game(arcade.Window):
         if symbol == arcade.key.DOWN:
             if self.y > 0:
                 self.y -= 1
-                
-    def on_update(self, delta_time):
-        """120 FPS"""
-        self.spl.update()
 def main():
     window = Game()
     arcade.run()
