@@ -8,7 +8,7 @@ WIDTH = 200
 HEIGHT = 200
 FPS = 120
 
-class RGBWindow(arcade.Window):
+class Game(arcade.Window):
     def __init__(self):
         super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
         self.start_time = time.time()
@@ -57,6 +57,6 @@ class RGBWindow(arcade.Window):
         """120 FPS"""
         self.spl.update()
 def main():
-    window = MyGame()
+    window = Game()
     arcade.run()
 main()
