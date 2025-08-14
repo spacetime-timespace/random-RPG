@@ -8,59 +8,51 @@ WIDTH = 200
 HEIGHT = 200
 FPS = 120
 
-x = 0
-y = 0
-
-sp = arcade.Sprite()
-sp.center_x = 100
-sp.center_y = 100
-spl = arcade.SpriteList()
-spl.append(sp)
-
 class RGBWindow(arcade.Window):
     def __init__(self):
-        global tex,sp
         super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
         self.start_time = time.time()
-        img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
-        im = Image.fromarray(img)
-        tex = arcade.Texture(image=im)
+        self.tex = arcade.Texture(image=im)
+        self.sp = arcade.Sprite()
+        self.sp.center_x = 100
+        self.sp.center_y = 100
         arcade.start_render()
+        self.spl = arcade.SpriteList()
+        self.spl.append(sp)
+        self.x = 0
+        self.y = 0
 
     def on_draw(self):
-        global text,sp
 
         t = time.time() - self.start_time
+        self.img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
+        self.img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
+        self.img[:, :, 3] = 255
 
-        img = np.zeros((HEIGHT, WIDTH, 4), dtype=np.uint8) # Arcade needs RGBA
-        img[:, :, 0] = (np.sin(t) * 31 + 224).astype(np.uint8)
-        img[:, :, 1] = (np.cos(t) * 31 + 224).astype(np.uint8)
-        img[:, :, 2] = ((np.sin(t * 0.5) + 1) * 31 + 224).astype(np.uint8)
-        img[:, :, 3] = 255
+        self.img[self.x:self.x+20, self.y:self.y+20, :] = 0
 
-        img[x:x+20, y:y+20, :] = 0
+        self.im = Image.fromarray(self.img)
 
-        im = Image.fromarray(img)
-
-        tex.image = im
-        sp.texture = tex
-        spl.draw()
+        self.tex.image = self.im
+        self.sp.texture = tex
+        self.spl.draw()
 
     def on_key_press(self,symbol,modifiers):
-        global x,y
         if symbol == arcade.key.LEFT:
-            if x > 0:
-                x -= 1
+            if self.x > 0:
+                self.x -= 1
         if symbol == arcade.key.RIGHT:
-            if x < 180:
-                x += 1  
+            if self.x < 180:
+                self.x += 1  
         if symbol == arcade.key.UP:
-            if y < 180:
-                x += 1
+            if self.y < 180:
+                self.y += 1
         if symbol == arcade.key.DOWN:
-            if y > 0:
-                x -= 1
-
-if __name__ == "__main__":
-    RGBWindow()
-    arcade.run()
+            if self.y > 0:
+                self.y -= 1
+                
+    def on_update(self, delta_time):
+        """120 FPS"""
+        self.spl.update()
