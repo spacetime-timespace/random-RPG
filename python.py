@@ -56,3 +56,7 @@ class RGBWindow(arcade.Window):
     def on_update(self, delta_time):
         """120 FPS"""
         self.spl.update()
+def main():
+    window = MyGame()
+    arcade.run()
+main()
