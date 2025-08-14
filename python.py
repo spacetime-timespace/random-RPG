@@ -44,7 +44,7 @@ class Game(arcade.Window):
 
         self.im = Image.fromarray(self.img)
         self.tex = arcade.Texture(self.im)
-        self.sp.texture = tex
+        self.sp.texture = self.tex
         self.clear()
         self.spl.draw()
 
