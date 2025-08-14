@@ -12,7 +12,7 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(WIDTH, HEIGHT, "RGB Animation", update_rate=1/FPS)
         self.start_time = time.time()
-        self.tex = arcade.Texture(image = Image.fromarray(np.array([[[0,0,0,0])))
+        self.tex = arcade.Texture(image = Image.fromarray(np.zeros((HEIGHT,WIDTH,4),dtype = np.uint8)))
         self.sp = arcade.Sprite()
         self.sp.center_x = 100
         self.sp.center_y = 100
