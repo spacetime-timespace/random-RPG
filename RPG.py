@@ -64,16 +64,3 @@ def main():
 
     
 main()
-    def on_key_press(self, key, modifiers):
-        pass
-    def on_key_release(self, key, modifiers):
-        pass
-
-def main():
-    window = GameView()
-    window.setup()
-    arcade.run()
-
-    
-if __name__ == "__main__":
-    main()
