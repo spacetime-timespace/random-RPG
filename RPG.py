@@ -120,8 +120,9 @@ class GameView(arcade.Window):
     def on_update(self, delta):
         self.x += (160 * self.xv * delta) % (WORLDX * 32)
         self.y += (160 * self.yv * delta) % (WORLDY * 32)
-        t = worldmap[floor(10.5+self.x//32)%WORLDX][floor(7+self.y//32)%WORLDY]
-        if t in [8,9,10,11,26,27,28,29,44,45,46,47,62,63]:
+        ts = [worldmap[floor(i[0]+10.5+self.x//32)%WORLDX][floor(i[1]+7+self.y//32)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
+        target = set([8,9,10,11,26,27,28,29,44,45,46,47,62,63])
+        if len(set(ts).intersection(target)) != 0:
             self.x += (160 * self.xv * delta) % (WORLDX * 32)
             self.y += (160 * self.yv * delta) % (WORLDY * 32)
         self.frame = int(((time.time()-self.start)*12)%6)
