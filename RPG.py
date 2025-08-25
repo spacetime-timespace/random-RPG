@@ -1,10 +1,32 @@
 import arcade
 import time
 from math import floor
-WORLDX = 24
-WORLDY = 24
+from random import random
+import numpy as np
+WORLDX = 240
+WORLDY = 240
 worldmap = [[24 for _ in range(WORLDY)] for _ in range(WORLDX)]
 worldmap[0][0] = 23
+
+house1 = [list(range(153+i,81+i,-18)) for i in range(5)]
+house2 = [list(range(84+i,-6+i,-18)) for i in range(6)]
+
+
+for i in range(24):
+    for j in range(24):
+        prob = np.e**(-0.01*((i-12)**2+(j-12)**2))/2
+        x = random()
+        if x < prob:
+            for i1 in range(5):
+                for j1 in range(4):
+                    worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
+        elif x < 2 * prob:
+            for i1 in range(6):
+                for j1 in range(5):
+                    worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
+
+
+
 def find_texture(dir,frame,pos):
     return arcade.load_texture("Tileset-parsed/Char_Sprites/char_"+pos+"_"+dir+"_anim_strip_6.png/tile"+str(frame)+".png")
 def find_tile(idx):
@@ -38,6 +60,11 @@ class GameView(arcade.Window):
             t = i[1]
             t.center_x = idx%21*32+16-self.x%32
             t.center_y = int(idx//21)*32+16-self.y%32
+            t.texture = find_tile(24)
+        self.spl.draw()
+        for i in zip(range(21*16),self.tiles):
+            idx = i[0]
+            t = i[1]
             t.texture = find_tile(worldmap[(idx%21+floor(self.x//32))%WORLDX][(int(idx//21)+floor(self.y//32))%WORLDY])
         self.spl.draw()
         arcade.draw_sprite(self.char)
