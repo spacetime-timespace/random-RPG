@@ -79,6 +79,10 @@ for i in range(24):
                 worldmap[10*i+1][(10*j-4)%240] = roads[11]
             else:
                 worldmap[10*i+1][(10*j-3)%240] = roads[11]
+            while random()>1/2:
+                xp = randint(6,7)
+                yp = randint(-1,5)
+                worldmap[10*i+xp][(10*j+yp)%240]=23
 
 text=[(0,0.5,2,"Hello!",1,320,440,1),(3,1,2,"Game speaking.",1,320,440,1),(6.5,2,2,"Welcome to the simulation.",1,320,440,1),(11,1.5,2,"Arrow keys to move.",1,320,440,1),(15,2,2,"Space to toggle compass.",1,320,440,1)] #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
