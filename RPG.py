@@ -42,8 +42,8 @@ class GameView(arcade.Window):
         self.spl.draw()
         arcade.draw_sprite(self.char)
     def on_update(self, delta):
-        self.x += 96 * self.xv * delta
-        self.y += 96 * self.yv * delta
+        self.x += (160 * self.xv * delta) % (WORLDX * 32)
+        self.y += (160 * self.yv * delta) % (WORLDY * 32)
         self.frame = int(((time.time()-self.start)*12)%6)
         if self.xv == 0 and self.yv == 0:
             self.pos = "idle"
