@@ -1,14 +1,4 @@
 import arcade
-
-class GameView(arcade.Window):
-    def __init__(self):
-        super().__init__(480,360,"RPG")
-    def setup(self):
-        pass
-    def on_draw(self):
-        self.clear()
-    def on_update(self, delta):
-        passimport arcade
 import time
 def find_texture(dir,frame,pos):
     return arcade.load_texture("Tileset-parsed/Char_Sprites/char_"+pos+"_"+dir+"_anim_strip_6.png/tile"+str(frame)+".png")
