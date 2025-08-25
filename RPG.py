@@ -30,21 +30,21 @@ roads = {
     15:24,
 }
 
-for i in range(240):
-    worldmap[118][i] = roads[5]
 for i in range(24):
     for j in range(240):
-        if j == 2:
-            worldmap[j][10*i+7]=roads[2]
-        if j == 238:
-            worldmap[j][10*i+6]=roads[8]
-        if 2 < j < 118:
+        worldmap[10*i+8][j] = roads[5]
+for i in range(24):
+    for j in range(240):
+        if 0 < (j+2)%20 < 10:
+            worldmap[j][10*i+6]=roads[10]
+        if 10 < (j+2)%20 < 20:
             worldmap[j][10*i+7]=roads[10]
-        if j == 118:
+        if (j+2)%20==0:
             worldmap[j][10*i+7]=roads[13]
             worldmap[j][10*i+6]=roads[7]
-        if 118 < j < 238:
-            worldmap[j][10*i+6]=roads[10]
+        if (j+2)%20==10:
+            worldmap[j][10*i+6]=roads[13]
+            worldmap[j][10*i+7]=roads[7]
 
 for i in range(24):
     for j in range(24):
@@ -56,7 +56,7 @@ for i in range(24):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
-            if i>=12:
+            if i%2==0:
                 worldmap[10*i+3][(10*j-3)%240] = roads[5]
                 worldmap[10*i+3][(10*j-4)%240] = roads[11]
             else:
@@ -65,13 +65,13 @@ for i in range(24):
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
-            worldmap[10*i+3][(10*j-1)%240] = roads[4]
-            worldmap[10*i+3][(10*j-2)%240] = roads[5]
-            if i>=12:
-                worldmap[10*i+3][(10*j-3)%240] = roads[5]
-                worldmap[10*i+3][(10*j-4)%240] = roads[11]
+            worldmap[10*i+1][(10*j-1)%240] = roads[4]
+            worldmap[10*i+1][(10*j-2)%240] = roads[5]
+            if i%2==0:
+                worldmap[10*i+1][(10*j-3)%240] = roads[5]
+                worldmap[10*i+1][(10*j-4)%240] = roads[11]
             else:
-                worldmap[10*i+3][(10*j-3)%240] = roads[11]
+                worldmap[10*i+1][(10*j-3)%240] = roads[11]
 
 
 
