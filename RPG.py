@@ -11,6 +11,40 @@ worldmap[0][0] = 23
 house1 = [list(range(153+i,81+i,-18)) for i in range(5)]
 house2 = [list(range(84+i,-6+i,-18)) for i in range(6)]
 
+roads = {
+    0:24,
+    1:28,
+    2:29,
+    3:26,
+    4:10,
+    5:46,
+    6:9,
+    7:44,
+    8:11,
+    9:27,
+    10:47,
+    11:62,
+    12:8,
+    13:45,
+    14:63,
+    15:24,
+}
+
+for i in range(240):
+    worldmap[118][i] = roads[5]
+for i in range(24):
+    for j in range(240):
+        if j == 2:
+            worldmap[j][10*i+7]=roads[2]
+        if j == 238:
+            worldmap[j][10*i+6]=roads[8]
+        if 2 < j < 118:
+            worldmap[j][10*i+7]=roads[10]
+        if j == 118:
+            worldmap[j][10*i+7]=roads[13]
+            worldmap[j][10*i+6]=roads[7]
+        if 118 < j < 238:
+            worldmap[j][10*i+6]=roads[10]
 
 for i in range(24):
     for j in range(24):
@@ -20,10 +54,25 @@ for i in range(24):
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
+            worldmap[10*i+3][(10*j-1)%240] = roads[4]
+            worldmap[10*i+3][(10*j-2)%240] = roads[5]
+            if i>=12:
+                worldmap[10*i+3][(10*j-3)%240] = roads[5]
+                worldmap[10*i+3][(10*j-4)%240] = roads[11]
+            else:
+                worldmap[10*i+3][(10*j-3)%240] = roads[11]
         elif x < 2 * prob:
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
+            worldmap[10*i+3][(10*j-1)%240] = roads[4]
+            worldmap[10*i+3][(10*j-2)%240] = roads[5]
+            if i>=12:
+                worldmap[10*i+3][(10*j-3)%240] = roads[5]
+                worldmap[10*i+3][(10*j-4)%240] = roads[11]
+            else:
+                worldmap[10*i+3][(10*j-3)%240] = roads[11]
+
 
 
 
@@ -71,6 +120,10 @@ class GameView(arcade.Window):
     def on_update(self, delta):
         self.x += (160 * self.xv * delta) % (WORLDX * 32)
         self.y += (160 * self.yv * delta) % (WORLDY * 32)
+        t = worldmap[floor(10.5+self.x//32)%WORLDX][floor(7+self.y//32)%WORLDY]
+        if t in [8,9,10,11,26,27,28,29,44,45,46,47,62,63]:
+            self.x += (160 * self.xv * delta) % (WORLDX * 32)
+            self.y += (160 * self.yv * delta) % (WORLDY * 32)
         self.frame = int(((time.time()-self.start)*12)%6)
         if self.xv == 0 and self.yv == 0:
             self.pos = "idle"
