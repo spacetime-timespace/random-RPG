@@ -85,15 +85,15 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-text=[(0,0.5,g,"Hello!",3,320,440,1),
-      (1+g,1,g,"Game speaking.",3,320,440,1),
-      (2.5+2*g,2,g,"Welcome to the simulation.",3,320,440,1),
-      (5+3*g,1.5,g,"Arrow keys to move.",3,320,440,1),
-      (7+4*g,2,g,"Space to toggle compass.",3,320,440,1),
-      (9.5+6*g,3.5,g,"Keys 1234567890-= to move through inventory",3,320,440,0.75),
-      (13.5+6*g,5,g,"Enter to carry/put down stuff from different slots of your inventory",3,320,440,0.5),
-      (19+7*g,2.5,g,"Shift+Enter to carry only half.",3,320,440,1),
-      (22+8*g,2.5,g,"Click to place/collect items.",3,320,440,1)]
+text=[(0,0.5,g,"Hello!",3,320,80,1),
+      (1+g,1,g,"Game speaking.",3,320,80,1),
+      (2.5+2*g,2,g,"Welcome to the simulation.",3,320,80,1),
+      (5+3*g,1.5,g,"Arrow keys to move.",3,320,80,1),
+      (7+4*g,2,g,"Space to toggle compass.",3,320,80,1),
+      (9.5+5*g,3.5,g,"Keys 1234567890-= to move through inventory",3,320,80,0.75),
+      (13.5+6*g,5,g,"Enter to carry/put down stuff from different slots of your inventory",3,320,80,0.5),
+      (19+7*g,2.5,g,"Shift+Enter to carry only half.",3,320,80,1),
+      (22+8*g,2.5,g,"Click to place/collect items.",3,320,80,1)]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
@@ -118,6 +118,9 @@ class GameView(arcade.Window):
     def on_resize(self,width,height):
         self.w = width
         self.h = height
+        self.x *= (self.w+self.h)/35/self.tilesize
+        self.y *= (self.w+self.h)/35/self.tilesize
+        self.tilesize = (self.w+self.h)/35
         self.hspl = arcade.SpriteList()
         for i in range(12):
             z = arcade.Sprite()
@@ -128,10 +131,12 @@ class GameView(arcade.Window):
             self.hspl.append(z)
         self.char.center_x = self.w/2
         self.char.center_y = self.h/2
-        self.tiles=[arcade.Sprite() for _ in range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1)))]
+        self.char.scale = self.tilesize/16
+        self.tiles=[arcade.Sprite() for _ in range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1)))]
         self.spl = arcade.SpriteList()
         self.spl.extend(self.tiles)
     def setup(self):
+        self.tilesize = 32
         self.w = 640
         self.h = 480
         self.x = 0
@@ -167,21 +172,21 @@ class GameView(arcade.Window):
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
-        for i in zip(range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1))),self.tiles):
+        for i in zip(range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1))),self.tiles):
             idx = i[0]
             t = i[1]
-            t.center_x = idx%int(np.ceil(self.w/32+1))*32+16-self.x%32
-            t.center_y = int(idx//int(np.ceil(self.w/32+1)))*32+16-self.y%32
-            t.scale = 2
+            t.center_x = idx%int(np.ceil(self.w/self.tilesize+1))*self.tilesize+(self.tilesize/2)-self.x%self.tilesize
+            t.center_y = int(idx//int(np.ceil(self.w/self.tilesize+1)))*self.tilesize+(self.tilesize/2)-self.y%self.tilesize
+            t.scale = self.tilesize/16
             t.texture = find_tile(24)
         self.spl.draw()
-        for i in zip(range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1))),self.tiles):
+        for i in zip(range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1))),self.tiles):
             idx = i[0]
             t = i[1]
-            t.center_x = idx%int(np.ceil(self.w/32+1))*32+16-self.x%32
-            t.center_y = int(idx//int(np.ceil(self.w/32+1)))*32+16-self.y%32
-            t.scale = 2
-            t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/32+1))+self.x//32)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/32+1)))+self.y//32)%WORLDY)])
+            t.center_x = idx%int(np.ceil(self.w/self.tilesize+1))*self.tilesize+(self.tilesize/2)-self.x%self.tilesize
+            t.center_y = int(idx//int(np.ceil(self.w/self.tilesize+1)))*self.tilesize+(self.tilesize/2)-self.y%self.tilesize
+            t.scale = self.tilesize/16
+            t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/self.tilesize+1))+self.x//self.tilesize)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/self.tilesize+1)))+self.y//self.tilesize)%WORLDY)])
         self.spl.draw()
         for i in self.spls:
             i.draw()
@@ -193,13 +198,13 @@ class GameView(arcade.Window):
         self.invspl.draw()
     def on_update(self, delta):
         ct = time.time()-self.start
-        self.x = (self.x+160 * self.xv * delta) % (WORLDX * 32)
-        self.y = (self.y+160 * self.yv * delta) % (WORLDY * 32)
-        ts = [worldmap[floor(i[0]+np.ceil(self.w/32+1)/2-1/2+self.x//32)%WORLDX][floor(i[1]+np.ceil(self.h/32+1)/2-1/2+self.y//32)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
+        self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
+        self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
+        ts = [worldmap[floor(i[0]+np.ceil(self.w/self.tilesize+1)/2-1/2+self.x//self.tilesize)%WORLDX][floor(i[1]+np.ceil(self.h/self.tilesize+1)/2-1/2+self.y//self.tilesize)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
         target = set([8,9,10,11,26,27,28,29,44,45,46,47,62,63])
         if len(set(ts).intersection(target)) != 0:
-            self.x = (self.x+160 * self.xv * delta) % (WORLDX * 32)
-            self.y = (self.y+160 * self.yv * delta) % (WORLDY * 32)
+            self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
+            self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
         self.frame = int((ct*12)%6)
         if self.xv == 0 and self.yv == 0:
             self.pos = "idle"
@@ -234,7 +239,7 @@ class GameView(arcade.Window):
             self.cpt = []
             tx = "("+format(str(self.x/32+10))+", "+format(str(self.y/32+7.5))+")"
             for j in range(len(tx)):
-                pos_x = 320+16*(-1/2*len(tx)+1/2+j)
+                pos_x = self.w/2+16*(-1/2*len(tx)+1/2+j)
                 z = arcade.Sprite()
                 z.scale = 1
                 z.center_x = pos_x
@@ -326,8 +331,8 @@ class GameView(arcade.Window):
         if key == arcade.key.UP:
             self.yv-=1
     def on_mouse_press(self,x,y,button,modifiers):
-        mouse_x = int(np.floor((self.x+x)/32))%WORLDX
-        mouse_y = int(np.floor((self.y+y)/32))%WORLDY
+        mouse_x = int(np.floor((self.x+x)/self.tilesize))%WORLDX
+        mouse_y = int(np.floor((self.y+y)/self.tilesize))%WORLDY
         if worldmap[mouse_x][mouse_y] == 24 and self.inv[self.slot][0] > 0:
             self.inv[self.slot][0] -= 1
             worldmap[mouse_x][mouse_y] = self.inv[self.slot][1]
