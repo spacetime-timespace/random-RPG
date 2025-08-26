@@ -10,7 +10,7 @@ worldmap[0][0] = 23
 
 house1 = [list(range(153+i,81+i,-18)) for i in range(5)]
 house2 = [list(range(84+i,-6+i,-18)) for i in range(6)]
-
+g = 5
 roads = {
     0:24,
     1:28,
@@ -85,16 +85,15 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-
-text=[(0,0.5,2,"Hello!",3,320,440,1),
-      (3,1,2,"Game speaking.",3,320,440,1),
-      (6.5,2,2,"Welcome to the simulation.",3,320,440,1),
-      (11,1.5,2,"Arrow keys to move.",3,320,440,1),
-      (15,2,2,"Space to toggle compass.",3,320,440,1),
-      (19.5,3.5,2,"Keys 1234567890-= to move through inventory",3,320,440,0.75),
-      (25.5,5,2,"Enter to carry/put down stuff from different slots of your inventory",3,320,440,0.5),
-      (33,2.5,2,"Shift+Enter to carry only half.",3,320,440,1),
-      (38,2.5,2,"Click to place/collect items.",3,320,440,1)]
+text=[(0,0.5,g,"Hello!",3,320,440,1),
+      (1+g,1,g,"Game speaking.",3,320,440,1),
+      (2.5+2*g,2,g,"Welcome to the simulation.",3,320,440,1),
+      (5+3*g,1.5,g,"Arrow keys to move.",3,320,440,1),
+      (7+4*g,2,g,"Space to toggle compass.",3,320,440,1),
+      (9.5+6*g,3.5,g,"Keys 1234567890-= to move through inventory",3,320,440,0.75),
+      (13.5+6*g,5,g,"Enter to carry/put down stuff from different slots of your inventory",3,320,440,0.5),
+      (19+7*g,2.5,g,"Shift+Enter to carry only half.",3,320,440,1),
+      (22+8*g,2.5,g,"Click to place/collect items.",3,320,440,1)]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
@@ -115,8 +114,26 @@ def find_glyph(font,char):
     return arcade.load_texture("Fonts-parsed/B"+str(font)+".png/tile"+str(key[char])+".png")
 class GameView(arcade.Window):
     def __init__(self):
-        super().__init__(640,480,"RPG")
+        super().__init__(640,480,"RPG",resizable=True)
+    def on_resize(self,width,height):
+        self.w = width
+        self.h = height
+        self.hspl = arcade.SpriteList()
+        for i in range(12):
+            z = arcade.Sprite()
+            z.center_x = self.w-48
+            z.center_y = self.h/2-176+32*i
+            z.scale = 2
+            z.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/item_box_hud.png/tile0.png")
+            self.hspl.append(z)
+        self.char.center_x = self.w/2
+        self.char.center_y = self.h/2
+        self.tiles=[arcade.Sprite() for _ in range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1)))]
+        self.spl = arcade.SpriteList()
+        self.spl.extend(self.tiles)
     def setup(self):
+        self.w = 640
+        self.h = 480
         self.x = 0
         self.y = 0
         self.xv = 0
@@ -140,15 +157,7 @@ class GameView(arcade.Window):
         self.cpt = []
         self.cts = arcade.SpriteList()
         self.slot = 0
-        self.hspl = arcade.SpriteList()
         self.slct = arcade.Sprite()
-        for i in range(12):
-            z = arcade.Sprite()
-            z.center_x = 592
-            z.center_y = 64+32*i
-            z.scale = 2
-            z.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/item_box_hud.png/tile0.png")
-            self.hspl.append(z)
         self.slct.center_x = 560
         self.slct.scale = 2
         self.slct.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/select_icon_ui.png/tile0.png")
@@ -158,17 +167,21 @@ class GameView(arcade.Window):
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
-        for i in zip(range(21*16),self.tiles):
+        for i in zip(range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1))),self.tiles):
             idx = i[0]
             t = i[1]
-            t.center_x = idx%21*32+16-self.x%32
-            t.center_y = int(idx//21)*32+16-self.y%32
+            t.center_x = idx%int(np.ceil(self.w/32+1))*32+16-self.x%32
+            t.center_y = int(idx//int(np.ceil(self.w/32+1)))*32+16-self.y%32
+            t.scale = 2
             t.texture = find_tile(24)
         self.spl.draw()
-        for i in zip(range(21*16),self.tiles):
+        for i in zip(range(int(np.ceil(self.w/32+1)*np.ceil(self.h/32+1))),self.tiles):
             idx = i[0]
             t = i[1]
-            t.texture = find_tile(worldmap[(idx%21+floor(self.x//32))%WORLDX][(int(idx//21)+floor(self.y//32))%WORLDY])
+            t.center_x = idx%int(np.ceil(self.w/32+1))*32+16-self.x%32
+            t.center_y = int(idx//int(np.ceil(self.w/32+1)))*32+16-self.y%32
+            t.scale = 2
+            t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/32+1))+self.x//32)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/32+1)))+self.y//32)%WORLDY)])
         self.spl.draw()
         for i in self.spls:
             i.draw()
@@ -182,7 +195,7 @@ class GameView(arcade.Window):
         ct = time.time()-self.start
         self.x = (self.x+160 * self.xv * delta) % (WORLDX * 32)
         self.y = (self.y+160 * self.yv * delta) % (WORLDY * 32)
-        ts = [worldmap[floor(i[0]+10.5+self.x//32)%WORLDX][floor(i[1]+7+self.y//32)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
+        ts = [worldmap[floor(i[0]+np.ceil(self.w/32+1)/2-1/2+self.x//32)%WORLDX][floor(i[1]+np.ceil(self.h/32+1)/2-1/2+self.y//32)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
         target = set([8,9,10,11,26,27,28,29,44,45,46,47,62,63])
         if len(set(ts).intersection(target)) != 0:
             self.x = (self.x+160 * self.xv * delta) % (WORLDX * 32)
@@ -229,27 +242,27 @@ class GameView(arcade.Window):
                 z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
-        self.slct.center_y=64+32*self.slot
+        self.slct.center_y=self.h/2-176+32*self.slot
         if self.carrying == None:
-            self.slct.center_x = 560
+            self.slct.center_x = self.w-80
         else:
-            self.slct.center_x = 544
+            self.slct.center_x = self.w-96
         self.invspl = arcade.SpriteList()
         for i in zip(self.inv,list(range(12))):
             tx = format(float(i[0][0]),2,0)[:-1]
             for j in range(len(tx)):
-                pos_x = 592+16*(-1/4*len(tx)+1/4+j/2)
+                pos_x = self.w-48+16*(-1/4*len(tx)+1/4+j/2)
                 z = arcade.Sprite()
                 z.scale = 0.5
                 z.center_x = pos_x
-                z.center_y = 72+32*i[1]
+                z.center_y = self.h/2-168+32*i[1]
                 z.texture = find_glyph(1,tx[j])
                 self.invspl.append(z)
             if i[0][0] != 0:
                 z = arcade.Sprite()
                 z.scale = 1
-                z.center_x = 592
-                z.center_y = 64+32*i[1]
+                z.center_x = pos_x
+                z.center_y = self.h/2-176+32*i[1]
                 z.texture = find_tile(i[0][1])
                 self.invspl.append(z)
     def on_key_press(self, key, modifiers):
@@ -313,8 +326,8 @@ class GameView(arcade.Window):
         if key == arcade.key.UP:
             self.yv-=1
     def on_mouse_press(self,x,y,button,modifiers):
-        mouse_x = int(np.floor((self.x+x)/32))
-        mouse_y = int(np.floor((self.y+y)/32))
+        mouse_x = int(np.floor((self.x+x)/32))%WORLDX
+        mouse_y = int(np.floor((self.y+y)/32))%WORLDY
         if worldmap[mouse_x][mouse_y] == 24 and self.inv[self.slot][0] > 0:
             self.inv[self.slot][0] -= 1
             worldmap[mouse_x][mouse_y] = self.inv[self.slot][1]
