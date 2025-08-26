@@ -1,7 +1,7 @@
 import arcade
 import time
 from math import floor
-from random import random,randint
+from random import random,randint,sample
 import numpy as np
 WORLDX = 240
 WORLDY = 240
@@ -29,7 +29,7 @@ roads = {
     14:63,
     15:24,
 }
-
+items = [23,56,57,58,59,60,61,72,73,74,75,76,77,78,90,91,92,93,94]
 chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=\\!@#$%^&*()_+|[]{};:'\",.<>/?~` "
 key=dict(zip(list(chars),list(range(len(chars)))))
 
@@ -64,10 +64,11 @@ for i in range(24):
                 worldmap[10*i+3][(10*j-4)%240] = roads[11]
             else:
                 worldmap[10*i+3][(10*j-3)%240] = roads[11]
-            while random()>1/2:
+            while random()>0.2:
+                k = sample(items,1)[0]
                 xp = randint(5,7)
                 yp = randint(-1,5)
-                worldmap[10*i+xp][(10*j+yp)%240]=23
+                worldmap[10*i+xp][(10*j+yp)%240]=k
         elif x < 2 * prob:
             for i1 in range(6):
                 for j1 in range(5):
@@ -79,22 +80,32 @@ for i in range(24):
                 worldmap[10*i+1][(10*j-4)%240] = roads[11]
             else:
                 worldmap[10*i+1][(10*j-3)%240] = roads[11]
-            while random()>1/2:
+            while random()>0.2:
+                k = sample(items,1)[0]
                 xp = randint(6,7)
                 yp = randint(-1,5)
-                worldmap[10*i+xp][(10*j+yp)%240]=23
+                worldmap[10*i+xp][(10*j+yp)%240]=k
 
-text=[(0,0.5,2,"Hello!",1,320,440,1),(3,1,2,"Game speaking.",1,320,440,1),(6.5,2,2,"Welcome to the simulation.",1,320,440,1),(11,1.5,2,"Arrow keys to move.",1,320,440,1),(15,2,2,"Space to toggle compass.",1,320,440,1)] #(start time, write time, display time, text, font, center x, center y, size/16)
+text=[(0,0.5,2,"Hello!",3,320,440,1),
+      (3,1,2,"Game speaking.",3,320,440,1),
+      (6.5,2,2,"Welcome to the simulation.",3,320,440,1),
+      (11,1.5,2,"Arrow keys to move.",3,320,440,1),
+      (15,2,2,"Space to toggle compass.",3,320,440,1),
+      (19.5,3.5,2,"Keys 1234567890-= to move through inventory",3,320,440,0.75),
+      (25.5,5,2,"Enter to carry/put down stuff from different slots of your inventory",3,320,440,0.5),
+      (33,2.5,2,"Shift+Enter to carry only half.",3,320,440,1),
+      (38,2.5,2,"Click to place/collect items.",3,320,440,1)]
+ #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
     if len(x[0])>sp:
         p1 = x[0][-sp:]
     else:
         p1 = "0"*(sp-len(x[0]))+x[0]
-    if len(x[1])>sp:
-        p2 = x[1][:sp]
+    if len(x[1])>dp:
+        p2 = x[1][:dp]
     else:
-        p2 = x[1]+"0"*(sp-len(x[1]))
+        p2 = x[1]+"0"*(dp-len(x[1]))
     return p1+"."+p2
 def find_texture(dir,frame,pos):
     return arcade.load_texture("Tileset-parsed/Char_Sprites/char_"+pos+"_"+dir+"_anim_strip_6.png/tile"+str(frame)+".png")
@@ -128,6 +139,22 @@ class GameView(arcade.Window):
         self.comp = False
         self.cpt = []
         self.cts = arcade.SpriteList()
+        self.slot = 0
+        self.hspl = arcade.SpriteList()
+        self.slct = arcade.Sprite()
+        for i in range(12):
+            z = arcade.Sprite()
+            z.center_x = 592
+            z.center_y = 64+32*i
+            z.scale = 2
+            z.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/item_box_hud.png/tile0.png")
+            self.hspl.append(z)
+        self.slct.center_x = 560
+        self.slct.scale = 2
+        self.slct.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/select_icon_ui.png/tile0.png")
+        self.inv = [[3,73],[2,58],[1,73],[2,58],[2,58],[0,73],[3,73],[2,58],[4,73],[0,73],[1,73],[4,58]]
+        self.invspl = arcade.SpriteList()
+        self.carrying = None
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
@@ -148,6 +175,9 @@ class GameView(arcade.Window):
         if self.comp:
             self.cps.draw()
         arcade.draw_sprite(self.char)
+        self.hspl.draw()
+        arcade.draw_sprite(self.slct)
+        self.invspl.draw()
     def on_update(self, delta):
         ct = time.time()-self.start
         self.x = (self.x+160 * self.xv * delta) % (WORLDX * 32)
@@ -196,9 +226,32 @@ class GameView(arcade.Window):
                 z.scale = 1
                 z.center_x = pos_x
                 z.center_y = 40
-                z.texture = find_glyph(1,tx[j])
+                z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
+        self.slct.center_y=64+32*self.slot
+        if self.carrying == None:
+            self.slct.center_x = 560
+        else:
+            self.slct.center_x = 544
+        self.invspl = arcade.SpriteList()
+        for i in zip(self.inv,list(range(12))):
+            tx = format(float(i[0][0]),2,0)[:-1]
+            for j in range(len(tx)):
+                pos_x = 592+16*(-1/4*len(tx)+1/4+j/2)
+                z = arcade.Sprite()
+                z.scale = 0.5
+                z.center_x = pos_x
+                z.center_y = 72+32*i[1]
+                z.texture = find_glyph(1,tx[j])
+                self.invspl.append(z)
+            if i[0][0] != 0:
+                z = arcade.Sprite()
+                z.scale = 1
+                z.center_x = 592
+                z.center_y = 64+32*i[1]
+                z.texture = find_tile(i[0][1])
+                self.invspl.append(z)
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.xv-=1
@@ -210,6 +263,46 @@ class GameView(arcade.Window):
             self.yv+=1
         if key == arcade.key.SPACE:
             self.comp = not self.comp
+        if key == arcade.key.KEY_1:
+            self.slot = 0
+        if key == arcade.key.KEY_2:
+            self.slot = 1
+        if key == arcade.key.KEY_3:
+            self.slot = 2
+        if key == arcade.key.KEY_4:
+            self.slot = 3
+        if key == arcade.key.KEY_5:
+            self.slot = 4
+        if key == arcade.key.KEY_6:
+            self.slot = 5
+        if key == arcade.key.KEY_7:
+            self.slot = 6
+        if key == arcade.key.KEY_8:
+            self.slot = 7
+        if key == arcade.key.KEY_9:
+            self.slot = 8
+        if key == arcade.key.KEY_0:
+            self.slot = 9
+        if key == arcade.key.MINUS:
+            self.slot = 10
+        if key == arcade.key.EQUAL:
+            self.slot = 11
+        if key == arcade.key.ENTER:
+            if modifiers == arcade.key.MOD_SHIFT:
+                if self.carrying == None:
+                    self.carrying = (np.floor(self.inv[self.slot][0]/2),self.inv[self.slot][1])
+                    self.inv[self.slot] = [np.ceil(self.inv[self.slot][0]/2),self.inv[self.slot][1]]
+                elif self.carrying[1] == self.inv[self.slot][1] or self.inv[self.slot][0] == 0:
+                    n1 = (self.inv[self.slot][0]+np.floor(self.carrying[0]/2),self.carrying[1])
+                    self.carrying = [np.ceil(self.inv[self.slot][0]/2),self.carrying[1]]
+                    self.inv[self.slot] = n1
+            else:
+                if self.carrying == None:
+                    self.carrying = (self.inv[self.slot][0],self.inv[self.slot][1])
+                    self.inv[self.slot] = [0,self.inv[self.slot][1]]
+                elif self.carrying[1] == self.inv[self.slot][1] or self.inv[self.slot][0] == 0:
+                    self.inv[self.slot] = [self.inv[self.slot][0]+self.carrying[0],self.carrying[1]]
+                    self.carrying = None
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.xv+=1
@@ -219,6 +312,16 @@ class GameView(arcade.Window):
             self.yv+=1
         if key == arcade.key.UP:
             self.yv-=1
+    def on_mouse_press(self,x,y,button,modifiers):
+        mouse_x = int(np.floor((self.x+x)/32))
+        mouse_y = int(np.floor((self.y+y)/32))
+        if worldmap[mouse_x][mouse_y] == 24 and self.inv[self.slot][0] > 0:
+            self.inv[self.slot][0] -= 1
+            worldmap[mouse_x][mouse_y] = self.inv[self.slot][1]
+        elif worldmap[mouse_x][mouse_y] in items and (self.inv[self.slot][0] == 0 or self.inv[self.slot][1] == worldmap[mouse_x][mouse_y]):
+            self.inv[self.slot][0] += 1
+            self.inv[self.slot][1] = worldmap[mouse_x][mouse_y]
+            worldmap[mouse_x][mouse_y] = 24
 
 def main():
     window = GameView()
