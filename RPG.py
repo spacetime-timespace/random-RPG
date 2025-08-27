@@ -259,7 +259,7 @@ class GameView(arcade.Window):
                 z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
-        self.slct.center_y=self.h/2-5.5*self.tilesize+32*self.slot
+        self.slct.center_y=self.h/2-5.5*self.tilesize+self.tilesize*self.slot
         if self.carrying == None:
             self.slct.center_x = self.w-2.5*self.tilesize
         else:
