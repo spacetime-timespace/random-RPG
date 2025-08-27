@@ -215,8 +215,8 @@ class GameView(arcade.Window):
 
         for i in self.npcs:
             j = arcade.Sprite()
-            a = (i[0] + i[2]) * tilesize
-            b = (i[1] + i[3]) * tilesize
+            a = (i[0] + i[2]) * self.tilesize
+            b = (i[1] + i[3]) * self.tilesize
             if(a > self.x and a < self.x + self.w):
                 if(b > self.y and b < self.y + self.h):
                     j.center_x = a - self.x
