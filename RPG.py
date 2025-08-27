@@ -85,16 +85,16 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI1",1,"Game speaking.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,80,3*s.tilesize/128),
-      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,80,s.tilesize/64),
-      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,80,s.tilesize/32),
-      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,80,s.tilesize/32)]
+text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI1",1,"Game speaking.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,2.5*s.tilesize,3*s.tilesize/128),
+      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
+      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32)]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
@@ -251,11 +251,11 @@ class GameView(arcade.Window):
             self.cpt = []
             tx = "("+format(str(self.x/self.tilesize+10))+", "+format(str(self.y/self.tilesize+7.5))+")"
             for j in range(len(tx)):
-                pos_x = self.w/2+16*(-1/2*len(tx)+1/2+j)
+                pos_x = self.w/2+16*(-1/2*self.tilesize/32*len(tx)+1/2+j*self.tilesize/32)
                 z = arcade.Sprite()
-                z.scale = 1
+                z.scale = self.tilesize/32
                 z.center_x = pos_x
-                z.center_y = 40
+                z.center_y = 1.25*self.tilesize
                 z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
