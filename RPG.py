@@ -57,7 +57,7 @@ for i in range(24):
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
-            people.append([10*i, 10*j, 0, 0, 0, 0])
+            people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0])
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -74,6 +74,7 @@ for i in range(24):
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
+            people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0])
             worldmap[10*i+1][(10*j-1)%240] = roads[4]
             worldmap[10*i+1][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -204,6 +205,17 @@ class GameView(arcade.Window):
             t.scale = self.tilesize/16
             t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/self.tilesize+1))+self.x//self.tilesize)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/self.tilesize+1)))+self.y//self.tilesize)%WORLDY)])
         self.spl.draw()
+        for i in self.npcs:
+            j = arcade.Sprite()
+            a = (i[0] + i[2]) * self.tilesize
+            b = (i[1] + i[3]) * self.tilesize
+            if(a > self.x and a < self.x + self.w):
+                if(b > self.y and b < self.y + self.h):
+                    j.center_x = a - self.x
+                    j.center_y = b - self.y
+                    j.scale = self.tilesize/16
+                    j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile"+str(self.frame)+".png")
+                    arcade.draw_sprite(j)
         for i in self.spls:
             i.draw()
         if self.comp:
@@ -213,28 +225,21 @@ class GameView(arcade.Window):
         arcade.draw_sprite(self.slct)
         self.invspl.draw()
 
-        for i in self.npcs:
-            j = arcade.Sprite()
-            a = (i[0] + i[2]) * self.tilesize
-            b = (i[1] + i[3]) * self.tilesize
-            if(a > self.x and a < self.x + self.w):
-                if(b > self.y and b < self.y + self.h):
-                    j.center_x = a - self.x
-                    j.center_y = b - self.y
-                    j.scale = 2
-                    j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile0.png")
-                    arcade.draw_sprite(j)
     def on_update(self, delta):
         ct = time.time()-self.start
-        if ct > self.ot + 5:
+        if ct > self.ot + 0.05:
             self.ot = ct
             for i in range(len(self.npcs)):
-                self.npcs[i][4] = random()
-                self.npcs[i][5] = random()
+                self.npcs[i][4] *= 0.9
+                self.npcs[i][5] *= 0.9
+                self.npcs[i][4] += random()*1-0.5
+                self.npcs[i][5] += random()*1-0.5
         for i in range(len(self.npcs)):
-            self.npcs[i][2] = min(10,max(-10, self.npcs[i][2] + self.npcs[i][4] * delta))
-            self.npcs[i][3] = min(10,max(-10, self.npcs[i][3] + self.npcs[i][5] * delta))
-            
+            self.npcs[i][2] += self.npcs[i][4] * delta
+            self.npcs[i][3] += self.npcs[i][5] * delta
+            if self.npcs[i][2]**2+self.npcs[i][3]**2>25:
+                self.npcs[i][2] -= self.npcs[i][4] * delta
+                self.npcs[i][3] -= self.npcs[i][5] * delta
         self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
         self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
         ts = [worldmap[floor(i[0]+np.ceil(self.w/self.tilesize+1)/2-1/2+self.x//self.tilesize)%WORLDX][floor(i[1]+np.ceil(self.h/self.tilesize+1)/2-1/2+self.y//self.tilesize)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
@@ -261,7 +266,7 @@ class GameView(arcade.Window):
             t = text[i](self)
             if self.mem[t[0]] != None:
                 for j in range(len(t[2])):
-                    if True: #(ct-self.mem[t[0]])*len(t[2])>=j*t[1]:
+                    if (time.time()-self.mem[t[0]])*len(t[2])>=j*t[1]:
                         pos_x = t[4]+16*(-t[6]/2*len(t[2])+t[6]/2+t[6]*j)
                         z = arcade.Sprite()
                         z.scale = t[6]
@@ -394,7 +399,6 @@ class GameView(arcade.Window):
                 m["NI1"] = ct
             else:
                 m["NI0"] = ct
-            print(self.mem)
         self.mem = m
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT:
