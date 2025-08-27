@@ -85,15 +85,16 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-text=[(0,0.5,g,"Hello!",3,320,80,1),
-      (1+g,1,g,"Game speaking.",3,320,80,1),
-      (2.5+2*g,2,g,"Welcome to the simulation.",3,320,80,1),
-      (5+3*g,1.5,g,"Arrow keys to move.",3,320,80,1),
-      (7+4*g,2,g,"Space to toggle compass.",3,320,80,1),
-      (9.5+5*g,3.5,g,"Keys 1234567890-= to move through inventory",3,320,80,0.75),
-      (13.5+6*g,5,g,"Enter to carry/put down stuff from different slots of your inventory",3,320,80,0.5),
-      (19+7*g,2.5,g,"Shift+Enter to carry only half.",3,320,80,1),
-      (22+8*g,2.5,g,"Click to place/collect items.",3,320,80,1)]
+text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,80,1),
+      lambda s:("NI1",1,"Game speaking.",3,s.w/2,80,1),
+      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,80,1),
+      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,80,1),
+      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,80,1),
+      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,80,0.75),
+      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,80,0.5),
+      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,80,1),
+      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,80,1),
+      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,80,1)]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
@@ -135,6 +136,18 @@ class GameView(arcade.Window):
         self.tiles=[arcade.Sprite() for _ in range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1)))]
         self.spl = arcade.SpriteList()
         self.spl.extend(self.tiles)
+        self.mem = {
+            "NI0" : self.start,
+            "NI1" : None,
+            "NI2" : None,
+            "NI3" : None,
+            "NI4" : None,
+            "NI5" : None,
+            "NI6" : None,
+            "NI7" : None,
+            "NI8" : None,
+            "NI9" : None,
+        }
     def setup(self):
         self.tilesize = 32
         self.w = 640
@@ -221,23 +234,22 @@ class GameView(arcade.Window):
         for i in range(len(text)):
             self.spls[i] = arcade.SpriteList()
             self.texts[i]=[]
-            if ct < text[i][0] or ct > text[i][0]+text[i][1]+text[i][2]:
-                pass
-            else:
-                for j in range(len(text[i][3])):
-                    if (ct-text[i][0])*len(text[i][3])>=j*text[i][1]:
-                        pos_x = text[i][5]+16*(-text[i][7]/2*len(text[i][3])+text[i][7]/2+text[i][7]*j)
+            t = text[i](self)
+            if self.mem[t[0]] != None:
+                for j in range(len(t[2])):
+                    if True: #(ct-self.mem[t[0]])*len(t[2])>=j*t[1]:
+                        pos_x = t[4]+16*(-t[6]/2*len(t[2])+t[6]/2+t[6]*j)
                         z = arcade.Sprite()
-                        z.scale = text[i][7]
+                        z.scale = t[6]
                         z.center_x = pos_x
-                        z.center_y = text[i][6]
-                        z.texture = find_glyph(text[i][4],text[i][3][j])
+                        z.center_y = t[5]
+                        z.texture = find_glyph(t[3],t[2][j])
                         self.spls[i].append(z)
                         self.texts[i].append(z)
         if self.comp:
             self.cps = arcade.SpriteList()
             self.cpt = []
-            tx = "("+format(str(self.x/32+10))+", "+format(str(self.y/32+7.5))+")"
+            tx = "("+format(str(self.x/self.tilesize+10))+", "+format(str(self.y/self.tilesize+7.5))+")"
             for j in range(len(tx)):
                 pos_x = self.w/2+16*(-1/2*len(tx)+1/2+j)
                 z = arcade.Sprite()
@@ -256,18 +268,20 @@ class GameView(arcade.Window):
         for i in zip(self.inv,list(range(12))):
             tx = format(float(i[0][0]),2,0)[:-1]
             for j in range(len(tx)):
-                pos_x = self.w-48+16*(-1/4*len(tx)+1/4+j/2)
+                pos_x = self.w-1.5*self.tilesize+self.tilesize/2*(-1/4*len(tx)+1/4+j/2)
                 z = arcade.Sprite()
-                z.scale = 0.5
+                z.scale = self.tilesize/64
                 z.center_x = pos_x
-                z.center_y = self.h/2-168+32*i[1]
+                z.center_y = self.h/2-168+self.tilesize*i[1]
                 z.texture = find_glyph(1,tx[j])
                 self.invspl.append(z)
             if i[0][0] != 0:
+                pos_x = self.w-1.5*self.tilesize
                 z = arcade.Sprite()
                 z.scale = 1
                 z.center_x = pos_x
                 z.center_y = self.h/2-176+32*i[1]
+                z.scale = self.tilesize/32
                 z.texture = find_tile(i[0][1])
                 self.invspl.append(z)
     def on_key_press(self, key, modifiers):
@@ -321,6 +335,43 @@ class GameView(arcade.Window):
                 elif self.carrying[1] == self.inv[self.slot][1] or self.inv[self.slot][0] == 0:
                     self.inv[self.slot] = [self.inv[self.slot][0]+self.carrying[0],self.carrying[1]]
                     self.carrying = None
+        #MEMORY
+        ct = time.time()
+        m=self.mem
+        if key == arcade.key.H:
+            if m["NI9"] != None:
+                m["NI9"] = None
+            elif m["NI8"] != None:
+                m["NI8"] = None
+                m["NI9"] = ct
+            elif m["NI7"] != None:
+                m["NI7"] = None
+                m["NI8"] = ct
+            elif m["NI6"] != None:
+                m["NI6"] = None
+                m["NI7"] = ct
+            elif m["NI5"] != None:
+                m["NI5"] = None
+                m["NI6"] = ct
+            elif m["NI4"] != None:
+                m["NI4"] = None
+                m["NI5"] = ct
+            elif m["NI3"] != None:
+                m["NI3"] = None
+                m["NI4"] = ct
+            elif m["NI2"] != None:
+                m["NI2"] = None
+                m["NI3"] = ct
+            elif m["NI1"] != None:
+                m["NI1"] = None
+                m["NI2"] = ct
+            elif m["NI0"] != None:
+                m["NI0"] = None
+                m["NI1"] = ct
+            else:
+                m["NI0"] = ct
+            print(self.mem)
+        self.mem = m
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.xv+=1
