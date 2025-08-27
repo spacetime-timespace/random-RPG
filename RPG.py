@@ -136,18 +136,7 @@ class GameView(arcade.Window):
         self.tiles=[arcade.Sprite() for _ in range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1)))]
         self.spl = arcade.SpriteList()
         self.spl.extend(self.tiles)
-        self.mem = {
-            "NI0" : self.start,
-            "NI1" : None,
-            "NI2" : None,
-            "NI3" : None,
-            "NI4" : None,
-            "NI5" : None,
-            "NI6" : None,
-            "NI7" : None,
-            "NI8" : None,
-            "NI9" : None,
-        }
+        self.slct.scale = self.tilesize/16
     def setup(self):
         self.tilesize = 32
         self.w = 640
@@ -177,11 +166,22 @@ class GameView(arcade.Window):
         self.slot = 0
         self.slct = arcade.Sprite()
         self.slct.center_x = 560
-        self.slct.scale = 2
         self.slct.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/select_icon_ui.png/tile0.png")
         self.inv = [[3,73],[2,58],[1,73],[2,58],[2,58],[0,73],[3,73],[2,58],[4,73],[0,73],[1,73],[4,58]]
         self.invspl = arcade.SpriteList()
         self.carrying = None
+        self.mem = {
+            "NI0" : self.start,
+            "NI1" : None,
+            "NI2" : None,
+            "NI3" : None,
+            "NI4" : None,
+            "NI5" : None,
+            "NI6" : None,
+            "NI7" : None,
+            "NI8" : None,
+            "NI9" : None,
+        }
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
@@ -259,11 +259,11 @@ class GameView(arcade.Window):
                 z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
-        self.slct.center_y=self.h/2-176+32*self.slot
+        self.slct.center_y=self.h/2-5.5*self.tilesize+32*self.slot
         if self.carrying == None:
-            self.slct.center_x = self.w-80
+            self.slct.center_x = self.w-2.5*self.tilesize
         else:
-            self.slct.center_x = self.w-96
+            self.slct.center_x = self.w-3*self.tilesize
         self.invspl = arcade.SpriteList()
         for i in zip(self.inv,list(range(12))):
             tx = format(float(i[0][0]),2,0)[:-1]
