@@ -215,10 +215,12 @@ class GameView(arcade.Window):
 
         for i in self.npcs:
             j = arcade.Sprite()
-            if(i[0] + i[2] > self.x and i[0] + i[2] < self.x + self.w):
-                if(i[1] + i[3] > self.y and i[1] + i[3] < self.y + self.h):
-                    j.center_x = i[0] + i[2] - self.x
-                    j.center_y = i[1] + i[3] - self.y
+            a = (i[0] + i[2]) * tilesize
+            b = (i[1] + i[3]) * tilesize
+            if(a > self.x and a < self.x + self.w):
+                if(b > self.y and b < self.y + self.h):
+                    j.center_x = a - self.x
+                    j.center_y = b - self.y
                     j.scale = 2
                     j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile0.png")
                     arcade.draw_sprite(j)
