@@ -218,7 +218,7 @@ class GameView(arcade.Window):
             j.center_x = i[0] + i[2]
             j.center_y = i[1] + i[3]
             j.scale = 2
-            j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_0_0_anim_strip_6.png/tile0.png")
+            j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile0.png")
             arcade.draw_sprite(j)
     def on_update(self, delta):
         ct = time.time()-self.start
