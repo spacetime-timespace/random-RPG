@@ -85,16 +85,16 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,80,1),
-      lambda s:("NI1",1,"Game speaking.",3,s.w/2,80,1),
-      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,80,1),
-      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,80,1),
-      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,80,1),
-      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,80,0.75),
-      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,80,0.5),
-      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,80,1),
-      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,80,1),
-      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,80,1)]
+text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI1",1,"Game speaking.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,80,3*s.tilesize/128),
+      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,80,s.tilesize/64),
+      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,80,s.tilesize/32),
+      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,80,s.tilesize/32)]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
@@ -125,9 +125,9 @@ class GameView(arcade.Window):
         self.hspl = arcade.SpriteList()
         for i in range(12):
             z = arcade.Sprite()
-            z.center_x = self.w-48
-            z.center_y = self.h/2-176+32*i
-            z.scale = 2
+            z.center_x = self.w-1.5*self.tilesize
+            z.center_y = self.h/2-5.5*self.tilesize+self.tilesize*i
+            z.scale = self.tilesize/16
             z.texture = arcade.load_texture("Tileset-parsed/Hud_Ui/item_box_hud.png/tile0.png")
             self.hspl.append(z)
         self.char.center_x = self.w/2
@@ -272,7 +272,7 @@ class GameView(arcade.Window):
                 z = arcade.Sprite()
                 z.scale = self.tilesize/64
                 z.center_x = pos_x
-                z.center_y = self.h/2-168+self.tilesize*i[1]
+                z.center_y = self.h/2-5.5*self.tilesize+self.tilesize*i[1]+self.tilesize/4
                 z.texture = find_glyph(1,tx[j])
                 self.invspl.append(z)
             if i[0][0] != 0:
@@ -280,7 +280,7 @@ class GameView(arcade.Window):
                 z = arcade.Sprite()
                 z.scale = 1
                 z.center_x = pos_x
-                z.center_y = self.h/2-176+32*i[1]
+                z.center_y = self.h/2-5.5*self.tilesize+self.tilesize*i[1]
                 z.scale = self.tilesize/32
                 z.texture = find_tile(i[0][1])
                 self.invspl.append(z)
