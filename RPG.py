@@ -32,7 +32,7 @@ roads = {
 items = [23,56,57,58,59,60,61,72,73,74,75,76,77,78,90,91,92,93,94]
 chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=\\!@#$%^&*()_+|[]{};:'\",.<>/?~` "
 key=dict(zip(list(chars),list(range(len(chars)))))
-
+people = []
 for i in range(24):
     for j in range(240):
         worldmap[10*i+8][j] = roads[5]
@@ -57,6 +57,7 @@ for i in range(24):
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
+            people.append([10*i, 10*j, 0, 0, 0, 0])
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -152,6 +153,7 @@ class GameView(arcade.Window):
         self.dir = "down"
         self.pos = "idle"
         self.start = time.time()
+        self.ot = 0
         self.frame = 0
         self.tiles=[arcade.Sprite() for _ in range(21*16)]
         for i in self.tiles:
@@ -182,6 +184,7 @@ class GameView(arcade.Window):
             "NI8" : None,
             "NI9" : None,
         }
+        self.npcs = people[:]
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
@@ -209,8 +212,25 @@ class GameView(arcade.Window):
         self.hspl.draw()
         arcade.draw_sprite(self.slct)
         self.invspl.draw()
+
+        for i in self.ncps:
+            j = arcade.Sprite()
+            j.center_x = i[0] + i[2]
+            j.center_y = i[1] + i[3]
+            j.scale = 2
+            j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_0_0_anim_strip_6.png/tile0.png")
+            arcade.draw_sprite(j)
     def on_update(self, delta):
         ct = time.time()-self.start
+        if ct > self.ot + 5:
+            self.ot = ct
+            for i in range(len(self.npcs)):
+                self.npcs[i][4] = random()
+                self.npcs[i][5] = random()
+        for i in range(len(self.npcs)):
+            self.npcs[i][2] = min(10,max(-10, self.npcs[i][2] + self.npcs[i][4] * delta))
+            self.npcs[i][3] = min(10,max(-10, self.npcs[i][3] + self.npcs[i][5] * delta))
+            
         self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
         self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
         ts = [worldmap[floor(i[0]+np.ceil(self.w/self.tilesize+1)/2-1/2+self.x//self.tilesize)%WORLDX][floor(i[1]+np.ceil(self.h/self.tilesize+1)/2-1/2+self.y//self.tilesize)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
