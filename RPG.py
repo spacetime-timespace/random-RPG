@@ -213,7 +213,7 @@ class GameView(arcade.Window):
         arcade.draw_sprite(self.slct)
         self.invspl.draw()
 
-        for i in self.ncps:
+        for i in self.npcs:
             j = arcade.Sprite()
             j.center_x = i[0] + i[2]
             j.center_y = i[1] + i[3]
