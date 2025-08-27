@@ -57,7 +57,8 @@ for i in range(24):
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
-            people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0])
+            while random() > 1/2:
+                people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -74,7 +75,8 @@ for i in range(24):
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
-            people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0])
+            while random() > 1/2:
+                people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+1][(10*j-1)%240] = roads[4]
             worldmap[10*i+1][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -205,21 +207,19 @@ class GameView(arcade.Window):
             t.scale = self.tilesize/16
             t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/self.tilesize+1))+self.x//self.tilesize)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/self.tilesize+1)))+self.y//self.tilesize)%WORLDY)])
         self.spl.draw()
-        for i in self.npcs:
-            j = arcade.Sprite()
-            a = (i[0] + i[2]) * self.tilesize
-            b = (i[1] + i[3]) * self.tilesize
-            if(a > self.x and a < self.x + self.w):
-                if(b > self.y and b < self.y + self.h):
-                    j.center_x = a - self.x
-                    j.center_y = b - self.y
-                    j.scale = self.tilesize/16
-                    j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile"+str(self.frame)+".png")
-                    arcade.draw_sprite(j)
         for i in self.spls:
             i.draw()
         if self.comp:
             self.cps.draw()
+        for i in self.npcs:
+            j = arcade.Sprite()
+            a = (i[0] + i[2]) * self.tilesize - self.x
+            b = (i[1] + i[3]) * self.tilesize - self.y
+            j.center_x = a
+            j.center_y = b
+            j.scale = self.tilesize/16 * i[6]
+            j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile"+str(self.frame)+".png")
+            arcade.draw_sprite(j)
         arcade.draw_sprite(self.char)
         self.hspl.draw()
         arcade.draw_sprite(self.slct)
@@ -237,7 +237,7 @@ class GameView(arcade.Window):
         for i in range(len(self.npcs)):
             self.npcs[i][2] += self.npcs[i][4] * delta
             self.npcs[i][3] += self.npcs[i][5] * delta
-            if self.npcs[i][2]**2+self.npcs[i][3]**2>25:
+            if self.npcs[i][2]**2+self.npcs[i][3]**2>400:
                 self.npcs[i][2] -= self.npcs[i][4] * delta
                 self.npcs[i][3] -= self.npcs[i][5] * delta
         self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
