@@ -59,7 +59,8 @@ for i in range(24):
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
-            while random() > 1/2:
+            people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+            while random() > 3/4:
                 people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
@@ -77,7 +78,8 @@ for i in range(24):
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
-            while random() > 1/2:
+            people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+            while random() > 3/4:
                 people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+1][(10*j-1)%240] = roads[4]
             worldmap[10*i+1][(10*j-2)%240] = roads[5]
@@ -222,8 +224,8 @@ class GameView(arcade.Window):
             self.cps.draw()
         for i in self.npcs:
             j = arcade.Sprite()
-            a = (i[0] + i[2]) * self.tilesize - self.x
-            b = (i[1] + i[3]) * self.tilesize - self.y
+            a = ((i[0] + i[2]) * self.tilesize - self.x)%(WORLDX*self.tilesize)
+            b = ((i[1] + i[3]) * self.tilesize - self.y)%(WORLDY*self.tilesize)
             j.center_x = a
             j.center_y = b
             j.scale = self.tilesize/16 * i[6]
@@ -390,8 +392,13 @@ class GameView(arcade.Window):
                     self.inv[self.slot] = [self.inv[self.slot][0]+self.carrying[0],self.carrying[1]]
                     self.carrying = None
         if key == arcade.key.E:
+            if self.mem["C0"] != None:
+                self.mem["C0"] = None
             for i in self.npcs:
-                0
+                a = i[0]+i[2]
+                b = i[1]+i[3]
+                if ((a-self.x/self.tilesize-self.w/2/self.tilesize+120)%240-120)**2+((b-self.y/self.tilesize-self.h/2/self.tilesize+120)%240-120)**2 <= 8:
+                    self.mem["C0"]=time.time()
         #SWITCHES
         if key == arcade.key.X:
             self.swin -= 1
