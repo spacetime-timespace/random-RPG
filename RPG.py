@@ -103,7 +103,8 @@ text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,
       lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
       lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
       lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("NI9",4.5,"Press E to interact with an NPC or continue a conversation.",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
+      lambda s:("NI10",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
       lambda s:("C0",2,"Nice to meet you!",2,s.w/2,4.5*s.tilesize,s.tilesize/32)]
 sw = []
  #(start time, write time, display time, text, font, center x, center y, size/16)
@@ -196,6 +197,7 @@ class GameView(arcade.Window):
             "NI7" : None,
             "NI8" : None,
             "NI9" : None,
+            "NI10" : None,
             "C0" : None
         }
         self.npcs = people[:]
@@ -415,8 +417,11 @@ class GameView(arcade.Window):
         ct = time.time()
         m=self.mem
         if key == arcade.key.H:
+            if m["NI10"] != None:
+                m["NI10"] = None
             if m["NI9"] != None:
                 m["NI9"] = None
+                m["NI10"] = ct
             elif m["NI8"] != None:
                 m["NI8"] = None
                 m["NI9"] = ct
