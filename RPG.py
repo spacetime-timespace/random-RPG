@@ -94,19 +94,26 @@ for i in range(24):
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
 text=[]
-text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI1",1,"Game speaking.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,2.5*s.tilesize,3*s.tilesize/128),
-      lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
-      lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI9",4.5,"Press E to interact with an NPC or continue a conversation.",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
-      lambda s:("NI10",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("C0",2,"Nice to meet you!",2,s.w/2,4.5*s.tilesize,s.tilesize/32)]
-sw = []
+text=[
+    lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI1",1,"Game speaking.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI3",1.5,"Arrow keys to move.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI4",2,"Space to toggle compass.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI5",3.5,"Keys 1234567890-= to move through inventory",3,s.w/2,2.5*s.tilesize,3*s.tilesize/128),
+    lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
+    lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("NI9",4.5,"Press E to interact with an NPC or continue a conversation.",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
+    lambda s:("NI10",6,"When you say something, use X and C to scroll through the options and Z to select.",3,s.w/2,2.5*s.tilesize,s.tilesize/80),
+    lambda s:("NI11",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+    lambda s:("C0",2,"Nice to meet you!",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C2",2.5,"It was nice meeting you! Bye!",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C3",2,"That's not very nice...",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+]
+sw = [
+    lambda s:("C1",["C2","C3","T"],["Nice to meet you!","Get out!","Bye!"],1,s.w/2,4.5*s.tilesize,s.tilesize/32),
+]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 #(start time, triggers, options, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
@@ -187,6 +194,7 @@ class GameView(arcade.Window):
         self.carrying = None
         self.swin = 0
         self.mem = {
+            "T" : None,
             "NI0" : self.start,
             "NI1" : None,
             "NI2" : None,
@@ -198,7 +206,11 @@ class GameView(arcade.Window):
             "NI8" : None,
             "NI9" : None,
             "NI10" : None,
-            "C0" : None
+            "NI11" : None,
+            "C0" : None,
+            "C1" : None,
+            "C2" : None,
+            "C3" : None,
         }
         self.npcs = people[:]
     def on_draw(self):
@@ -396,11 +408,17 @@ class GameView(arcade.Window):
         if key == arcade.key.E:
             if self.mem["C0"] != None:
                 self.mem["C0"] = None
-            for i in self.npcs:
-                a = i[0]+i[2]
-                b = i[1]+i[3]
-                if ((a-self.x/self.tilesize-self.w/2/self.tilesize+120)%240-120)**2+((b-self.y/self.tilesize-self.h/2/self.tilesize+120)%240-120)**2 <= 8:
-                    self.mem["C0"]=time.time()
+                self.mem["C1"] = time.time()
+            elif self.mem["C2"] != None:
+                self.mem["C2"] = None
+            elif self.mem["C3"] != None:
+                self.mem["C3"] = None
+            else:
+                for i in self.npcs:
+                    a = i[0]+i[2]
+                    b = i[1]+i[3]
+                    if ((a-self.x/self.tilesize-self.w/2/self.tilesize+120)%240-120)**2+((b-self.y/self.tilesize-self.h/2/self.tilesize+120)%240-120)**2 <= 8:
+                        self.mem["C0"]=time.time()
         #SWITCHES
         if key == arcade.key.X:
             self.swin -= 1
@@ -411,15 +429,18 @@ class GameView(arcade.Window):
                 z = sw[i](self)
                 if self.mem[z[0]] != None:
                     if self.mem[z[0]] > self.swch[i]:
-                        self.swch[i] = self.mem[z[0]]
-                        self.mem[z[1][self.swin%len(z[1])]] = 1
+                        self.swch[i] = time.time()
+                        self.mem[z[1][self.swin%len(z[1])]] = time.time()
         #MEMORY
         ct = time.time()
         m=self.mem
         if key == arcade.key.H:
-            if m["NI10"] != None:
+            if m["NI11"] != None:
+                m["NI11"] = None
+            elif m["NI10"] != None:
                 m["NI10"] = None
-            if m["NI9"] != None:
+                m["NI11"] = ct
+            elif m["NI9"] != None:
                 m["NI9"] = None
                 m["NI10"] = ct
             elif m["NI8"] != None:
