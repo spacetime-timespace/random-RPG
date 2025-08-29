@@ -8,6 +8,8 @@ WORLDY = 240
 worldmap = [[24 for _ in range(WORLDY)] for _ in range(WORLDX)]
 worldmap[0][0] = 23
 
+#TODO talk to NPCs
+
 house1 = [list(range(153+i,81+i,-18)) for i in range(5)]
 house2 = [list(range(84+i,-6+i,-18)) for i in range(6)]
 g = 5
@@ -89,6 +91,7 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
+text=[]
 text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
       lambda s:("NI1",1,"Game speaking.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
       lambda s:("NI2",2,"Welcome to the simulation.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
@@ -98,8 +101,11 @@ text=[lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,
       lambda s:("NI6",5,"Enter to carry/put down stuff from different slots of your inventory",3,s.w/2,2.5*s.tilesize,s.tilesize/64),
       lambda s:("NI7",2.5,"Shift+Enter to carry only half.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
       lambda s:("NI8",2.5,"Click to place/collect items.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
-      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32)]
+      lambda s:("NI9",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
+      lambda s:("C0",2,"Nice to meet you!",2,s.w/2,4.5*s.tilesize,s.tilesize/32)]
+sw = []
  #(start time, write time, display time, text, font, center x, center y, size/16)
+#(start time, triggers, options, text, font, center x, center y, size/16)
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
     if len(x[0])>sp:
@@ -141,6 +147,7 @@ class GameView(arcade.Window):
         self.spl = arcade.SpriteList()
         self.spl.extend(self.tiles)
         self.slct.scale = self.tilesize/16
+        self.swch = [-1 for _ in sw]
     def setup(self):
         self.tilesize = 32
         self.w = 640
@@ -175,6 +182,7 @@ class GameView(arcade.Window):
         self.inv = [[3,73],[2,58],[1,73],[2,58],[2,58],[0,73],[3,73],[2,58],[4,73],[0,73],[1,73],[4,58]]
         self.invspl = arcade.SpriteList()
         self.carrying = None
+        self.swin = 0
         self.mem = {
             "NI0" : self.start,
             "NI1" : None,
@@ -186,6 +194,7 @@ class GameView(arcade.Window):
             "NI7" : None,
             "NI8" : None,
             "NI9" : None,
+            "C0" : None
         }
         self.npcs = people[:]
     def on_draw(self):
@@ -237,7 +246,7 @@ class GameView(arcade.Window):
         for i in range(len(self.npcs)):
             self.npcs[i][2] += self.npcs[i][4] * delta
             self.npcs[i][3] += self.npcs[i][5] * delta
-            if self.npcs[i][2]**2+self.npcs[i][3]**2>400:
+            if self.npcs[i][2]**2+self.npcs[i][3]**2>9:
                 self.npcs[i][2] -= self.npcs[i][4] * delta
                 self.npcs[i][3] -= self.npcs[i][5] * delta
         self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
@@ -275,6 +284,22 @@ class GameView(arcade.Window):
                         z.texture = find_glyph(t[3],t[2][j])
                         self.spls[i].append(z)
                         self.texts[i].append(z)
+        for i in range(len(sw)):
+            t = sw[i](self)
+            if self.mem[t[0]] != None:
+                if self.mem[t[0]] > self.swch[i]:
+                    te = t[2][self.swin%len(t[2])]
+                    for j in range(len(te)):
+                        pos_x = t[4]+16*(-t[6]/2*len(te)+t[6]/2+t[6]*j)
+                        z = arcade.Sprite()
+                        z.scale = t[6]
+                        z.center_x = pos_x
+                        z.center_y = t[5]
+                        z.texture = find_glyph(t[3],te[j])
+                        self.spls[i].append(z)
+                        self.texts[i].append(z)
+
+                
         if self.comp:
             self.cps = arcade.SpriteList()
             self.cpt = []
@@ -364,6 +389,21 @@ class GameView(arcade.Window):
                 elif self.carrying[1] == self.inv[self.slot][1] or self.inv[self.slot][0] == 0:
                     self.inv[self.slot] = [self.inv[self.slot][0]+self.carrying[0],self.carrying[1]]
                     self.carrying = None
+        if key == arcade.key.E:
+            for i in self.npcs:
+                0
+        #SWITCHES
+        if key == arcade.key.X:
+            self.swin -= 1
+        if key == arcade.key.C:
+            self.swin += 1
+        if key == arcade.key.Z:
+            for i in range(len(sw)):
+                z = sw[i](self)
+                if self.mem[z[0]] != None:
+                    if self.mem[z[0]] > self.swch[i]:
+                        self.swch[i] = self.mem[z[0]]
+                        self.mem[z[1][self.swin%len(z[1])]] = 1
         #MEMORY
         ct = time.time()
         m=self.mem
