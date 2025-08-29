@@ -307,7 +307,7 @@ class GameView(arcade.Window):
         if self.comp:
             self.cps = arcade.SpriteList()
             self.cpt = []
-            tx = "("+format(str(self.x/self.tilesize+10))+", "+format(str(self.y/self.tilesize+7.5))+")"
+            tx = "("+format(str((self.x/self.tilesize+10)%240))+", "+format(str((self.y/self.tilesize+7.5)%240))+")"
             for j in range(len(tx)):
                 pos_x = self.w/2+16*(-1/2*self.tilesize/32*len(tx)+1/2+j*self.tilesize/32)
                 z = arcade.Sprite()
