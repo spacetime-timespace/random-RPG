@@ -8,6 +8,8 @@ If you live in a place with normal download speed, download Tileset-parsed.zip a
 
 (Same thing for Fonts.zip, Fonts-parsed.zip, and parser (font).py. Dusk Fonts.zip is just for anyone who wants to use the fonts in text files)
 
+We conveniently packaged the files for running in the run folder
+
 Also, remember to install arcade, random, pillow, and numpy.
 
 Fonts:
