@@ -1,2 +1,5 @@
-arcade>=3.3.2
+arcade>=3.3.0
 numpy>=2.2.0
+random
+time>=3.10.0
+math
