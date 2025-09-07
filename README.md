@@ -84,18 +84,23 @@ GIF writing issues when running parsers: install ffmpeg (see Requirements). Movi
 ## Project structure (relevant parts)
 ```
 .
-├── run
+├── run                       # everything needed to run RPG.py
+│    ├── Fonts-parsed.zip     # pre-parsed fonts (zip)
+│    ├── RPG.py               # main RPG
+│    ├── Tileset-parsed.zip   # pre-parsed tiles (zip)
+│    └── requirements.txt     # pinned Python deps
 │
-├── RPG.py                    # RPG prototype
-├── main.py                   # small RGB animation demo
+├── RPG.py                    # main RPG
+├── main.py                   # small RGB demo
 ├── parser.py                 # tileset slicer -> Tileset-parsed/
-├── parser_font.py          # font slicer    -> Fonts-parsed/
+├── parser_font.py            # font slicer    -> Fonts-parsed/
 ├── Tileset.zip               # raw tileset (zip)
 ├── Fonts.zip                 # raw font sheet (zip)
 ├── Tileset-parsed.zip        # pre-parsed tiles (zip)
 ├── Fonts-parsed.zip          # pre-parsed fonts (zip)
 ├── requirements.txt          # pinned Python deps
-└── LICENSE
+├── README.md                 # README file
+└── LICENSE                   # copyright license
 ```
 
 ## Credits
