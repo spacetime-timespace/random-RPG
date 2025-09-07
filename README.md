@@ -1,40 +1,106 @@
-# random-project
+# random-RPG
 
-This is just something we decided to make to practice the python library arcade. Currently, the main.py contains the only functional "game" we have. RPG.py has implemented movement, but isn't able to run directly.
+A project built with the Python Arcade library. The repo currently contains:
 
-Instructions for running RPG.py:
+main.py: a minimal RGB animation demo using Arcade + Pillow + NumPy.
+RPG.py: a tile-based RPG prototype that loads sprites/tiles from parsed assets.
+parser.py and parser_font.py: utilities to slice raw tileset/font images into per-tile files used by the game.
 
-1. Go to releases -> 2.0 -> download as zip
-2. Unzip it.
-3. Install requirements.txt
-4. Run RPG.py
+## Requirements
 
-Description (Outdated): https://www.youtube.com/watch?v=RgX4FSaPX_w&t=7s&pp=0gcJCcYJAYcqIYzv
+Python 3.10–3.12 recommended
+pip
+ffmpeg (only required if you regenerate animated GIF assets with the parsers)
+  - macOS: brew install ffmpeg
+  - Ubuntu/Debian: sudo apt-get install ffmpeg
 
-Controls:
+Install Python dependencies:
+bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+pip install -r requirements.txt
 
-* H to advance through tutorial
+The pinned dependencies in requirements.txt are:
+arcade~=3.3.2
+numpy~=2.3.2
+Pillow~=11.3.0
+moviepy~=2.2.1
 
-* Arrow keys to move
+## Assets setup
 
-* Keys 1234567890-= to move through inventory
+The RPG uses pre-parsed assets located in Tileset-parsed/ and Fonts-parsed/.
+You have two options to provide them:
 
-* Enter to pick up/put down items
+Option A: Use the pre-parsed assets included in this repo
+  1. Unzip Tileset-parsed.zip into Tileset-parsed/ at the repo root.
+  2. Unzip Fonts-parsed.zip into Fonts-parsed/ at the repo root.
 
-* Shift-Enter to pick up/put down half of the items
+Option B: Regenerate from the raw sources
+  1. Unzip Tileset.zip into a directory named Tileset/ at the repo root.
+  2. Unzip Fonts.zip into a directory named Fonts/ at the repo root.
+  3. Run the parsers:
+bash
+     # From the repo root
+     python parser.py          # processes Tileset/ -> Tileset-parsed/
+     python "parser (font).py"  # processes Fonts/   -> Fonts-parsed/
+    
 
-* Click to place/pick up items (for pick up, you need to have a inventory slot with nothing except maybe a few of the things you're picking up)
+After either option, you should have these directories:
+Tileset-parsed/
+Fonts-parsed/
 
-* E to interact
+## How to run
 
-* E to continue (conversation only)
+Optional: Run the demo (simple game):
+bash
+  python main.py
+ 
 
-* X + C to view your options for what to say
+Run the RPG:
+bash
+  # Make sure Tileset-parsed/ and Fonts-parsed/ exist (see Assets setup)
+  python RPG.py
+ 
 
-* Z to select
+## Controls (RPG.py)
 
-Fonts:
-https://dusk-games.itch.io/dusk-free-fonts
+H — advance through tutorial
+Arrow keys — move
+Space — toggle compass overlay
+1 2 3 4 5 6 7 8 9 0 - = — select inventory slot
+Enter — pick up/put down items from selected slot
+Shift+Enter — pick up/put down half of the stack
+Mouse click — place/pick up items (your slot must be compatible or empty to pick up)
+E — interact with an NPC or continue conversation
+X / C — scroll dialogue choices
+Z — select a dialogue option
 
-Tiles:
-https://o-lobster.itch.io/adventure-pack
+## Troubleshooting
+
+Import errors (e.g., ModuleNotFoundError: arcade): run pip install -r requirements.txt inside your virtual environment.
+Asset not found (e.g., missing Tileset-parsed/...): ensure you unzipped the pre-parsed archives or ran the parsers.
+GIF writing issues when running parsers: install ffmpeg (see Requirements). MoviePy uses imageio-ffmpeg and may need the system binary.
+
+## Project structure (relevant parts)
+.
+├── RPG.py                    # RPG prototype
+├── main.py                   # small RGB animation demo
+├── parser.py                 # tileset slicer -> Tileset-parsed/
+├── parser (font).py          # font slicer    -> Fonts-parsed/
+├── Tileset.zip               # raw tileset (zip)
+├── Fonts.zip                 # raw font sheet (zip)
+├── Tileset-parsed.zip        # pre-parsed tiles (zip)
+├── Fonts-parsed.zip          # pre-parsed fonts (zip)
+├── requirements.txt          # pinned Python deps
+└── LICENSE
+
+## Credits
+
+Fonts: https://dusk-games.itch.io/dusk-free-fonts
+Tiles: https://o-lobster.itch.io/adventure-pack
+
+## License
+
+This project’s code is licensed under the terms in LICENSE. Asset licenses are governed by their respective sources linked above.
+
+## Examples
