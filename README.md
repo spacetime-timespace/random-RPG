@@ -21,11 +21,11 @@ source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
 
 The pinned dependencies in requirements.txt are:
-arcade~=3.3.2
+```arcade~=3.3.2
 numpy~=2.3.2
 Pillow~=11.3.0
 moviepy~=2.2.1
-
+```
 ## Assets setup
 
 The RPG uses pre-parsed assets located in Tileset-parsed/ and Fonts-parsed/.
@@ -39,47 +39,50 @@ Option B: Regenerate from the raw sources
   1. Unzip Tileset.zip into a directory named Tileset/ at the repo root.
   2. Unzip Fonts.zip into a directory named Fonts/ at the repo root.
   3. Run the parsers:
-bash
+```bash
      # From the repo root
      python parser.py          # processes Tileset/ -> Tileset-parsed/
-     python "parser (font).py"  # processes Fonts/   -> Fonts-parsed/
+     python parser_font.py  # processes Fonts/   -> Fonts-parsed/
+```
     
 
 After either option, you should have these directories:
+```
 Tileset-parsed/
 Fonts-parsed/
-
+```
 ## How to run
 
 Optional: Run the demo (simple game):
-bash
+```bash
   python main.py
- 
+```
 
 Run the RPG:
-bash
+```bash
   # Make sure Tileset-parsed/ and Fonts-parsed/ exist (see Assets setup)
   python RPG.py
+```
  
 
 ## Controls (RPG.py)
 
-H — advance through tutorial
-Arrow keys — move
-Space — toggle compass overlay
-1 2 3 4 5 6 7 8 9 0 - = — select inventory slot
-Enter — pick up/put down items from selected slot
-Shift+Enter — pick up/put down half of the stack
-Mouse click — place/pick up items (your slot must be compatible or empty to pick up)
-E — interact with an NPC or continue conversation
-X / C — scroll dialogue choices
-Z — select a dialogue option
+* H — advance through tutorial
+* Arrow keys — move
+* Space — toggle compass overlay
+* 1 2 3 4 5 6 7 8 9 0 - = — select inventory slot
+* Enter — pick up/put down items from selected slot
+* Shift+Enter — pick up/put down half of the stack
+* Mouse click — place/pick up items (your slot must be compatible or empty to pick up)
+* E — interact with an NPC or continue conversation
+* X / C — scroll dialogue choices
+* Z — select a dialogue option
 
 ## Troubleshooting
 
-Import errors (e.g., ModuleNotFoundError: arcade): run pip install -r requirements.txt inside your virtual environment.
-Asset not found (e.g., missing Tileset-parsed/...): ensure you unzipped the pre-parsed archives or ran the parsers.
-GIF writing issues when running parsers: install ffmpeg (see Requirements). MoviePy uses imageio-ffmpeg and may need the system binary.
+* Import errors (e.g., ModuleNotFoundError: arcade): run pip install -r requirements.txt inside your virtual environment.
+* Asset not found (e.g., missing Tileset-parsed/...): ensure you unzipped the pre-parsed archives or ran the parsers.
+* GIF writing issues when running parsers: install ffmpeg (see Requirements). MoviePy uses imageio-ffmpeg and may need the system binary.
 
 ## Project structure (relevant parts)
 ```
