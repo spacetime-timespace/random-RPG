@@ -82,17 +82,21 @@ Asset not found (e.g., missing Tileset-parsed/...): ensure you unzipped the pre-
 GIF writing issues when running parsers: install ffmpeg (see Requirements). MoviePy uses imageio-ffmpeg and may need the system binary.
 
 ## Project structure (relevant parts)
+```
 .
+├── run
+│
 ├── RPG.py                    # RPG prototype
 ├── main.py                   # small RGB animation demo
 ├── parser.py                 # tileset slicer -> Tileset-parsed/
-├── parser (font).py          # font slicer    -> Fonts-parsed/
+├── parser_font.py          # font slicer    -> Fonts-parsed/
 ├── Tileset.zip               # raw tileset (zip)
 ├── Fonts.zip                 # raw font sheet (zip)
 ├── Tileset-parsed.zip        # pre-parsed tiles (zip)
 ├── Fonts-parsed.zip          # pre-parsed fonts (zip)
 ├── requirements.txt          # pinned Python deps
 └── LICENSE
+```
 
 ## Credits
 
