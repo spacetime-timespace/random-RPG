@@ -2,9 +2,9 @@
 
 A project built with the Python Arcade library. The repo currently contains:
 
-main.py: a minimal RGB animation demo using Arcade + Pillow + NumPy.
-RPG.py: a tile-based RPG prototype that loads sprites/tiles from parsed assets.
-parser.py and parser_font.py: utilities to slice raw tileset/font images into per-tile files used by the game.
+* main.py: a minimal RGB animation demo using Arcade + Pillow + NumPy.
+* RPG.py: a tile-based RPG prototype that loads sprites/tiles from parsed assets.
+* parser.py and parser_font.py: utilities to slice raw tileset/font images into per-tile files used by the game.
 
 ## Requirements
 
@@ -108,8 +108,8 @@ Run the RPG:
 
 ## Credits
 
-Fonts: https://dusk-games.itch.io/dusk-free-fonts
-Tiles: https://o-lobster.itch.io/adventure-pack
+* Fonts: https://dusk-games.itch.io/dusk-free-fonts
+* Tiles: https://o-lobster.itch.io/adventure-pack
 
 ## License
 
