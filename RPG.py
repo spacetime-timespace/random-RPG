@@ -1,18 +1,22 @@
+#imports
 import arcade
 import time
 from math import floor
-from random import random,randint,sample
+from random import random,randint,sample,choices
 import numpy as np
+
+#world define
 WORLDX = 240
 WORLDY = 240
 worldmap = [[24 for _ in range(WORLDY)] for _ in range(WORLDX)]
 worldmap[0][0] = 23
 
-#TODO talk to NPCs
-
+#house tiles
 house1 = [list(range(153+i,81+i,-18)) for i in range(5)]
 house2 = [list(range(84+i,-6+i,-18)) for i in range(6)]
-g = 5
+
+#constants
+ite = lambda i,t,e: t if i else e
 roads = {
     0:24,
     1:28,
@@ -35,6 +39,33 @@ items = [23,56,57,58,59,60,61,72,73,74,75,76,77,78,90,91,92,93,94]
 chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=\\!@#$%^&*()_+|[]{};:'\",.<>/?~` "
 key=dict(zip(list(chars),list(range(len(chars)))))
 people = []
+names = {
+    0: "void",
+    56:"grass clipping",
+    57:"grass",
+    58:"flowering bush",
+    59:"bush",
+    60:"nut",
+    61:"sign",
+    72:"medium cotton ball",
+    73:"vibrant flower",
+    74:"pebbles",
+    75:"stump",
+    76:"axe",
+    77:"fireplace",
+    78:"fencepost",
+    79:"pot",
+    90:"small cotton ball",
+    91:"large cotton ball",
+    92:"rock",
+    93:"stone",
+    94:"stone brick",
+    95:"left fence",
+    96:"right fence",
+    97:"bottom fence"
+}
+
+#road generation
 for i in range(24):
     for j in range(240):
         worldmap[10*i+8][j] = roads[5]
@@ -51,17 +82,20 @@ for i in range(24):
             worldmap[j][10*i+6]=roads[13]
             worldmap[j][10*i+7]=roads[7]
 
+#house generation
+houses = []
 for i in range(24):
     for j in range(24):
         prob = np.e**(-0.01*((i-12)**2+(j-12)**2))/2
         x = random()
         if x < prob:
+            houses.append((i,j))
             for i1 in range(5):
                 for j1 in range(4):
                     worldmap[10*i+i1][10*j+j1] = house1[i1][j1]
-            people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+            people.append([10*i+2, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             while random() > 3/4:
-                people.append([10*i+3, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+                people.append([10*i+2, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+3][(10*j-1)%240] = roads[4]
             worldmap[10*i+3][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -75,12 +109,13 @@ for i in range(24):
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
         elif x < 2 * prob:
+            houses.append((i,j))
             for i1 in range(6):
                 for j1 in range(5):
                     worldmap[10*i+i1][10*j+j1] = house2[i1][j1]
-            people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+            people.append([10*i+2, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             while random() > 3/4:
-                people.append([10*i+1, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
+                people.append([10*i+2, (10*j-1)%240, 0, 0, 0, 0, randint(1,2)/2])
             worldmap[10*i+1][(10*j-1)%240] = roads[4]
             worldmap[10*i+1][(10*j-2)%240] = roads[5]
             if i%2==0:
@@ -93,7 +128,8 @@ for i in range(24):
                 xp = randint(6,7)
                 yp = randint(-1,5)
                 worldmap[10*i+xp][(10*j+yp)%240]=k
-text=[]
+
+#All dialogue
 text=[
     lambda s:("NI0",0.5,"Hello! (Press H to continue)",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
     lambda s:("NI1",1,"Game speaking.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
@@ -108,14 +144,25 @@ text=[
     lambda s:("NI10",6,"When you say something, use X and C to scroll through the options and Z to select.",3,s.w/2,2.5*s.tilesize,s.tilesize/80),
     lambda s:("NI11",2.5,"Press H to restart this.",3,s.w/2,2.5*s.tilesize,s.tilesize/32),
     lambda s:("C0",2,"Nice to meet you!",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
-    lambda s:("C2",2.5,"It was nice meeting you! Bye!",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C2",2.5,"Also, can you help me deliver a "+names[s.do]+"?",2,s.w/2,4.5*s.tilesize,s.tilesize/80),
     lambda s:("C3",2,"That's not very nice...",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C5",2,"Remember to go on an inventory slot with space!",3,s.w/2,4.5*s.tilesize,s.tilesize/80),
+    lambda s:("C6",2,"Remember, it's a "+names[s.do]+" at the house "+str(int(np.abs(s.dx)))+" blocks "+ite(s.dx<0,"left","right")+" and "+str(int(np.abs(s.dy)))+" blocks "+ite(s.dy<0,"down","up")+"!",3,s.w/2,4.5*s.tilesize,s.tilesize/128),
+    lambda s:("C7",2.5,"Is this for me?",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C9",2.5,"Thanks! Here's a "+names[s.do]+"!",2,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C10",2,"Remember to go on an inventory slot with space!",3,s.w/2,4.5*s.tilesize,s.tilesize/80),
 ]
+
+#All your dialogue
 sw = [
     lambda s:("C1",["C2","C3","T"],["Nice to meet you!","Get out!","Bye!"],1,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C4",["C5","T"],["Sure!","Not now."],1,s.w/2,4.5*s.tilesize,s.tilesize/32),
+    lambda s:("C8",["C9","T"],["Yes!","No"],1,s.w/2,4.5*s.tilesize,s.tilesize/32),
 ]
  #(start time, write time, display time, text, font, center x, center y, size/16)
 #(start time, triggers, options, text, font, center x, center y, size/16)
+
+#Formatting to xxx.xx
 def format(n,sp=3,dp=2):
     x = str(n).split(".")
     if len(x[0])>sp:
@@ -127,16 +174,22 @@ def format(n,sp=3,dp=2):
     else:
         p2 = x[1]+"0"*(dp-len(x[1]))
     return p1+"."+p2
+
+#Finding various textures
 def find_texture(dir,frame,pos):
     return arcade.load_texture("Tileset-parsed/Char_Sprites/char_"+pos+"_"+dir+"_anim_strip_6.png/tile"+str(frame)+".png")
 def find_tile(idx):
     return arcade.load_texture("Tileset-parsed/Overworld_Tileset.png/tile"+str(idx)+".png")
 def find_glyph(font,char):
     return arcade.load_texture("Fonts-parsed/B"+str(font)+".png/tile"+str(key[char])+".png")
+
+#Start game
 class GameView(arcade.Window):
     def __init__(self):
         super().__init__(640,480,"RPG",resizable=True)
     def on_resize(self,width,height):
+
+        #constants that change with size
         self.w = width
         self.h = height
         self.x *= (self.w+self.h)/35/self.tilesize
@@ -159,6 +212,8 @@ class GameView(arcade.Window):
         self.slct.scale = self.tilesize/16
         self.swch = [-1 for _ in sw]
     def setup(self):
+
+        #Setup constants
         self.tilesize = 32
         self.w = 640
         self.h = 480
@@ -211,11 +266,23 @@ class GameView(arcade.Window):
             "C1" : None,
             "C2" : None,
             "C3" : None,
+            "C4" : None,
+            "C5" : None,
+            "C6" : None,
+            "C7" : None,
+            "C8" : None,
+            "C9" : None, 
+            "C10" : None,
         }
         self.npcs = people[:]
+        self.dx,self.dy,self.do = (0,0,0)
+        self.goals = []
+        self.ix,self.iy = (0,0)
     def on_draw(self):
         self.clear()
         self.char.texture = find_texture(self.dir,self.frame,self.pos)
+
+        #Background
         for i in zip(range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1))),self.tiles):
             idx = i[0]
             t = i[1]
@@ -224,6 +291,8 @@ class GameView(arcade.Window):
             t.scale = self.tilesize/16
             t.texture = find_tile(24)
         self.spl.draw()
+
+        #Tiles
         for i in zip(range(int(np.ceil(self.w/self.tilesize+1)*np.ceil(self.h/self.tilesize+1))),self.tiles):
             idx = i[0]
             t = i[1]
@@ -232,10 +301,16 @@ class GameView(arcade.Window):
             t.scale = self.tilesize/16
             t.texture = find_tile(worldmap[int(np.round(idx%int(np.ceil(self.w/self.tilesize+1))+self.x//self.tilesize)%WORLDX)][int(np.round(int(idx//int(np.ceil(self.w/self.tilesize+1)))+self.y//self.tilesize)%WORLDY)])
         self.spl.draw()
+
+        #Text
         for i in self.spls:
             i.draw()
+
+        #Compass
         if self.comp:
             self.cps.draw()
+        
+        #Draw NPCs
         for i in self.npcs:
             j = arcade.Sprite()
             a = ((i[0] + i[2]) * self.tilesize - self.x)%(WORLDX*self.tilesize)
@@ -245,12 +320,16 @@ class GameView(arcade.Window):
             j.scale = self.tilesize/16 * i[6]
             j.texture = arcade.load_texture("Tileset-parsed/Char_Sprites/char_idle_down_anim_strip_6.png/tile"+str(self.frame)+".png")
             arcade.draw_sprite(j)
+        
+        #Draw character, inventory, ...
         arcade.draw_sprite(self.char)
         self.hspl.draw()
         arcade.draw_sprite(self.slct)
         self.invspl.draw()
 
     def on_update(self, delta):
+
+        #NPC movement
         ct = time.time()-self.start
         if ct > self.ot + 0.05:
             self.ot = ct
@@ -259,12 +338,16 @@ class GameView(arcade.Window):
                 self.npcs[i][5] *= 0.9
                 self.npcs[i][4] += random()*1-0.5
                 self.npcs[i][5] += random()*1-0.5
+        
+        #NPC bounds
         for i in range(len(self.npcs)):
             self.npcs[i][2] += self.npcs[i][4] * delta
             self.npcs[i][3] += self.npcs[i][5] * delta
             if self.npcs[i][2]**2+self.npcs[i][3]**2>9:
                 self.npcs[i][2] -= self.npcs[i][4] * delta
                 self.npcs[i][3] -= self.npcs[i][5] * delta
+
+        #Character position update
         self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
         self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
         ts = [worldmap[floor(i[0]+np.ceil(self.w/self.tilesize+1)/2-1/2+self.x//self.tilesize)%WORLDX][floor(i[1]+np.ceil(self.h/self.tilesize+1)/2-1/2+self.y//self.tilesize)%WORLDY] for i in zip(range(-1,2),range(-1,2))]
@@ -272,6 +355,8 @@ class GameView(arcade.Window):
         if len(set(ts).intersection(target)) != 0:
             self.x = (self.x+5*self.tilesize * self.xv * delta) % (WORLDX * self.tilesize)
             self.y = (self.y+5*self.tilesize * self.yv * delta) % (WORLDY * self.tilesize)
+        
+        #Character texturing
         self.frame = int((ct*12)%6)
         if self.xv == 0 and self.yv == 0:
             self.pos = "idle"
@@ -285,6 +370,8 @@ class GameView(arcade.Window):
                 self.dir = "down"
             elif self.yv == 1:
                 self.dir = "up"
+        
+        #Text handling
         for i in range(len(text)):
             self.spls[i] = arcade.SpriteList()
             self.texts[i]=[]
@@ -300,6 +387,8 @@ class GameView(arcade.Window):
                         z.texture = find_glyph(t[3],t[2][j])
                         self.spls[i].append(z)
                         self.texts[i].append(z)
+        
+        #Your options handling
         for i in range(len(sw)):
             t = sw[i](self)
             if self.mem[t[0]] != None:
@@ -315,7 +404,7 @@ class GameView(arcade.Window):
                         self.spls[i].append(z)
                         self.texts[i].append(z)
 
-                
+        #Compass handling        
         if self.comp:
             self.cps = arcade.SpriteList()
             self.cpt = []
@@ -329,11 +418,15 @@ class GameView(arcade.Window):
                 z.texture = find_glyph(3,tx[j])
                 self.cps.append(z)
                 self.cpt.append(z)
+        
+        #Inventory hand positioning
         self.slct.center_y=self.h/2-5.5*self.tilesize+self.tilesize*self.slot
         if self.carrying == None:
             self.slct.center_x = self.w-2.5*self.tilesize
         else:
             self.slct.center_x = self.w-3*self.tilesize
+
+        #Inventory items positioning
         self.invspl = arcade.SpriteList()
         for i in zip(self.inv,list(range(12))):
             tx = format(float(i[0][0]),2,0)[:-1]
@@ -355,6 +448,7 @@ class GameView(arcade.Window):
                 z.texture = find_tile(i[0][1])
                 self.invspl.append(z)
     def on_key_press(self, key, modifiers):
+        #Movement
         if key == arcade.key.LEFT:
             self.xv-=1
         if key == arcade.key.RIGHT:
@@ -363,8 +457,15 @@ class GameView(arcade.Window):
             self.yv-=1
         if key == arcade.key.UP:
             self.yv+=1
+        if key == arcade.key.ESCAPE:
+            self.yv = 0
+            self.xv = 0
+        
+        #Compass
         if key == arcade.key.SPACE:
             self.comp = not self.comp
+        
+        #Inventory
         if key == arcade.key.KEY_1:
             self.slot = 0
         if key == arcade.key.KEY_2:
@@ -389,6 +490,8 @@ class GameView(arcade.Window):
             self.slot = 10
         if key == arcade.key.EQUAL:
             self.slot = 11
+        
+        #Carrying
         if key == arcade.key.ENTER:
             if modifiers == arcade.key.MOD_SHIFT:
                 if self.carrying == None:
@@ -405,21 +508,73 @@ class GameView(arcade.Window):
                 elif self.carrying[1] == self.inv[self.slot][1] or self.inv[self.slot][0] == 0:
                     self.inv[self.slot] = [self.inv[self.slot][0]+self.carrying[0],self.carrying[1]]
                     self.carrying = None
+        
+        #Dialogue Memory
         if key == arcade.key.E:
             if self.mem["C0"] != None:
                 self.mem["C0"] = None
                 self.mem["C1"] = time.time()
             elif self.mem["C2"] != None:
                 self.mem["C2"] = None
+                self.mem["C4"] = time.time()
             elif self.mem["C3"] != None:
                 self.mem["C3"] = None
-            else:
+            elif self.mem["C5"] != None:
+                if self.inv[self.slot][1] == self.do or self.inv[self.slot][0] == 0:
+                    self.mem["C5"] = None
+                    probs = [[np.e**(-0.25*(((i+12)%24-12)**2+((j+12)%24-12)**2)) for j in range(24)] for i in range(24)]
+                    for i in range(24):
+                        for j in range(24):
+                            if ((i+self.ix)%24,(j+self.iy)%24) not in houses:
+                                probs[i][j] = 0                          
+                    probs[0][0] = 0
+                    probs = np.array(probs)
+                    probs = probs / probs.sum()
+                    probs = list(np.reshape(probs,576))
+                    values = list(np.reshape(np.array([[(i,j) for j in range(24)] for i in range(24)]),(576,2)))
+                    l = choices(values,probs,k=1)[0]
+                    self.dx = l[0]
+                    self.dy = l[1]
+                    self.goals.append([self.ix,self.iy,self.do,int(self.ix+self.dx)%24,int(self.iy+self.dy)%24])
+                    self.mem["C6"] = time.time()
+                    self.inv[self.slot] = [self.inv[self.slot][0]+1,self.do]
+            elif self.mem["C6"] != None:
+                self.mem["C6"] = None
+            elif self.mem["C7"] != None:
+                self.mem["C7"] = None
+                self.mem["C8"] = time.time()
+            elif self.mem["C9"] != None:
+                self.mem["C9"] = None
+                self.mem["C10"] = time.time()
+            elif self.mem["C10"] != None:
+                del self.goals[self.idx]
+                self.inv[self.s][0] -= 1
+                if self.inv[self.slot][1] == self.do or self.inv[self.slot][0] == 0:
+                    self.mem["C10"] = None
+                    self.inv[self.slot] = [self.inv[self.slot][0]+1,self.do]
+            elif not self.mem["C1"] and not self.mem["C4"] and not self.mem["C8"]:
                 for i in self.npcs:
                     a = i[0]+i[2]
                     b = i[1]+i[3]
                     if ((a-self.x/self.tilesize-self.w/2/self.tilesize+120)%240-120)**2+((b-self.y/self.tilesize-self.h/2/self.tilesize+120)%240-120)**2 <= 8:
-                        self.mem["C0"]=time.time()
-        #SWITCHES
+                        self.ix = int(i[0]/10-0.2)%24
+                        self.iy = int(i[1]/10+0.1)%24
+                        if [self.inv[self.slot][1],self.ix,self.iy] in [i[2:] for i in self.goals] and self.inv[self.slot][0]>0:
+                            self.idx = [i[2:] for i in self.goals].index([self.inv[self.slot][1],self.ix,self.iy])
+                            self.do = sample(items[1:],k=1)[0]
+                            self.mem["C7"]=time.time()
+                            self.s = self.slot
+                        elif [self.ix,self.iy] in [i[0:2] for i in self.goals]:
+                            idx = self.goals[[i[0:2] for i in self.goals].index([self.ix,self.iy])]
+                            self.dx = idx[3]-idx[0]
+                            self.dy = idx[4]-idx[1]
+                            self.do = idx[2]
+                            self.mem["C6"]=time.time()
+                        else:
+                            self.do = sample(items[1:],k=1)[0]
+                            self.mem["C0"]=time.time()
+                        break
+        #Switches
         if key == arcade.key.X:
             self.swin -= 1
         if key == arcade.key.C:
@@ -429,9 +584,9 @@ class GameView(arcade.Window):
                 z = sw[i](self)
                 if self.mem[z[0]] != None:
                     if self.mem[z[0]] > self.swch[i]:
-                        self.swch[i] = time.time()
+                        self.mem[z[0]] = None
                         self.mem[z[1][self.swin%len(z[1])]] = time.time()
-        #MEMORY
+        #Memory
         ct = time.time()
         m=self.mem
         if key == arcade.key.H:
@@ -474,6 +629,7 @@ class GameView(arcade.Window):
                 m["NI0"] = ct
         self.mem = m
     def on_key_release(self, key, modifiers):
+        #Movement
         if key == arcade.key.LEFT:
             self.xv+=1
         if key == arcade.key.RIGHT:
@@ -483,6 +639,7 @@ class GameView(arcade.Window):
         if key == arcade.key.UP:
             self.yv-=1
     def on_mouse_press(self,x,y,button,modifiers):
+        #Placing
         mouse_x = int(np.floor((self.x+x)/self.tilesize))%WORLDX
         mouse_y = int(np.floor((self.y+y)/self.tilesize))%WORLDY
         if worldmap[mouse_x][mouse_y] == 24 and self.inv[self.slot][0] > 0:
